@@ -1,0 +1,7 @@
+pymssql
+sqlalchemy==1.3.13
+alembic
+selenium
+pandas
+requests==2.22.0
+pygsheets==2.0.2
