@@ -3,6 +3,7 @@ from pygsheets import SpreadsheetNotFound, WorksheetNotFound
 from config import GOOGLE_SPREAD_SHEET_CREDENTIAL
 from config import GOOGLE_SPREAD_SHEET_NAME
 from config import SHARE_EMAIL
+
 gc = pygsheets.authorize(service_file=GOOGLE_SPREAD_SHEET_CREDENTIAL)
 try:
     sh = gc.open(GOOGLE_SPREAD_SHEET_NAME)
