@@ -6,6 +6,8 @@ from models.model import Base
 
 class TeamScoreHASLAMETRICS(Base):
     __tablename__ = 'TeamScoreHASLAMETRICS'
+    table_columns = ['FirstTeamName', 'FirstTeamScore', 'FirstTeamNumber', 'SecondTeamName', 'SecondTeamScore',
+                     'SecondTeamNumber', 'Date']
     id = Column(Integer, primary_key=True, autoincrement=True)
     firstTeamName = Column(String, nullable=True)
     firstTeamScore = Column(String, nullable=True)

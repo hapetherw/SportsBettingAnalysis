@@ -96,7 +96,7 @@ def recreate_betql_table():
                                              BetQLTotalNBA.__table__, BetQL1stHalfSpreadNBA.__table__,
                                              BetQL1stHalfMoneylineNBA.__table__, BetQL1stHalfTotalNBA.__table__,
                                              BetQL2ndHalfSpreadNBA.__table__, BetQL2ndHalfMoneylineNBA.__table__])
-    print("Created VegasInsider Tables")
+    print("Created BetQL Tables")
 
 
 def recreate_sportsinsights_table():
