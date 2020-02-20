@@ -9,7 +9,7 @@ chrome_options.add_argument('--disable-dev-shm-usage')
 chrome_options.binary_location = '/usr/bin/google-chrome'
 
 chrome_driver = '/usr/bin/chromedriver'
-browser = webdriver.Chrome(executable_path=chrome_driver, chrome_options=chrome_options)
+browser = webdriver.Chrome(executable_path=chrome_driver, options=chrome_options)
 # import pandas as pd
 # from database import recreate_database
 # recreate_database()
