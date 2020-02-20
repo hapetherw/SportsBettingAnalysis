@@ -18,10 +18,14 @@ from airtable_init import ncaa_team_info
 from airtable_init import nba_team_info
 from airtable_init import game_date_info
 from airtable_init import game_time_info
+from config import RUN_SERVER
 # import google_spread_sheet
 # from google_spread_sheet import get_work_sheet
 
-browser = webdriver.Chrome('chromedriver.exe')
+if RUN_SERVER:
+    browser = webdriver.Chrome()
+else:
+    browser = webdriver.Chrome('chromedriver.exe')
 browser.maximize_window()
 # wks_nba = get_work_sheet('OddShark_NBA')
 # wks_ncaab = get_work_sheet('OddShark_NCAAB')
