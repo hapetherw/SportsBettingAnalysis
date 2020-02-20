@@ -1,990 +1,406 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import NoSuchElementException
 import requests
-from datetime import date
-import time
-from enum import Enum, auto
-from models.betql_model import BetQLSpreadNCAAB
-from models.betql_model import BetQLMoneylineNCAAB
-from models.betql_model import BetQLTotalNCAAB
-from models.betql_model import BetQL1stHalfSpreadNCAAB
-from models.betql_model import BetQL1stHalfMoneylineNCAAB
-from models.betql_model import BetQL1stHalfTotalNCAAB
-from models.betql_model import BetQL2ndHalfSpreadNCAAB
-from models.betql_model import BetQL2ndHalfMoneylineNCAAB
-from models.betql_model import BetQLSpreadNBA
-from models.betql_model import BetQLMoneylineNBA
-from models.betql_model import BetQLTotalNBA
-from models.betql_model import BetQL1stHalfSpreadNBA
-from models.betql_model import BetQL1stHalfMoneylineNBA
-from models.betql_model import BetQL1stHalfTotalNBA
-from models.betql_model import BetQL2ndHalfSpreadNBA
-from models.betql_model import BetQL2ndHalfMoneylineNBA
-from database import session
-from database import recreate_betql_table
-from database import close_connection
+from datetime import datetime, timedelta
+import pytz
+from airtable_init import airtable_ncaa_team
+from airtable_init import airtable_nba_team
+from airtable_init import airtable_betql_ncaa
+from airtable_init import airtable_betql_nba
+from airtable_init import ncaa_team_info
+from airtable_init import nba_team_info
 
-browser = webdriver.Chrome('chromedriver.exe')
+api_url = 'https://api.betql.co/graphql'
 email = 'bonagamble@gmail.com'
 password = 'Br@df0rd$$'
+# eastern = pytz.timezone('US/Eastern')
+
+today = datetime.now()
+before_date = today.strftime('%Y-%m-%dT') + '16:59:59.999Z'
+after_date = datetime.strftime(today - timedelta(1), '%Y-%m-%dT') + '17:00:00.000Z'
+book_id = "2a09f6df-5b47-4f87-82ef-91a77d26eef9"
+print("Start BetQL work")
+login_res = requests.post(api_url,
+                          json={"operationName": "login",
+                                "variables": {"email": email, "password": password},
+                                "query": "mutation login($email: String!, $password: String!, $longitude: Float, " "$latitude: Float) {\n  login(username: $email, password: $password, " "longitude:$longitude, latitude: $latitude, product: \"bet\") {\n    token\n  " "  userId\n    sports {\nupdatedTime\n      sport\n      __typename\n    " "}\n    __typename\n  }\n}\n"},
+                          headers={'Content-Type': 'application/json'})
+
+token = login_res.json()['data']['login']['token']
 
 
-# login_res = requests.post('https://api.betql.co/graphql', json={"operationName": "login", "variables": {
-# "email": email, "password": password}, "query": "mutation login($email: String!, $password: String!,
-# $longitude: Float, " "$latitude: Float) {\n  login(username: $email, password: $password, " "longitude:
-# $longitude, latitude: $latitude, product: \"bet\") {\n    token\n  " "  userId\n    sports {\n
-# updatedTime\n      sport\n      __typename\n    " "}\n    __typename\n  }\n}\n"}, headers={'Content-Type':
-# 'application/json'})
-#
-# token = login_res.json()['data']['login']['token']
-# user_id = login_res.json()['data']['login']['userId']
-class TabType(Enum):
-    NCAAB_Spread = auto()
-    NCAAB_Moneyline = auto()
-    NCAAB_Total = auto()
-    NCAAB_FirstHalfSpread = auto()
-    NCAAB_FirstHalfMoneyline = auto()
-    NCAAB_FirstHalfTotal = auto()
-    NCAAB_SecondHalfSpread = auto()
-    NCAAB_SecondHalfMoneyline = auto()
-    NBA_Spread = auto()
-    NBA_Moneyline = auto()
-    NBA_Total = auto()
-    NBA_FirstHalfSpread = auto()
-    NBA_FirstHalfMoneyline = auto()
-    NBA_FirstHalfTotal = auto()
-    NBA_SecondHalfSpread = auto()
-    NBA_SecondHalfMoneyline = auto()
-
-
-def add_betql_spread_ncaab():
-    browser.get('https://betql.co/ncaab/odds/spread')
-    login_button = browser.find_element_by_xpath('//button[@class="rotoql-navbar__login-link"]')
-    browser.execute_script('arguments[0].click()', login_button)
-    login_tab = browser.find_element_by_class_name(
-        'rotoql-login-modal__form-container').find_elements_by_tag_name('button')[0]
-    browser.execute_script('arguments[0].click()', login_tab)
-    browser.find_element_by_class_name('rotoql-login__form').find_element_by_name('email').send_keys(email)
-    browser.find_element_by_class_name('rotoql-login__form').find_element_by_name('password').send_keys(password)
-    browser.find_element_by_class_name('rotoql-login__form').submit()
-
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB Spread Page is ready!")
-    except TimeoutException:
-        print("NCAAB Spread Loading took too much time!")
-    time.sleep(15)
-    print("NCAAB Spread Page is now live!")
-    add_betql_data(TabType.NCAAB_Spread, 1)
-
-
-def add_betql_moneyline_ncaab():
-    browser.get('https://betql.co/ncaab/odds/moneyline')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB Moneyline Page is ready!")
-    except TimeoutException:
-        print("NCAAB Moneyline Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB Moneyline Page is now live!")
-    add_betql_data(TabType.NCAAB_Moneyline, 1)
-
-
-def add_betql_total_ncaab():
-    browser.get('https://betql.co/ncaab/odds/totals-spread')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB Total Page is ready!")
-    except TimeoutException:
-        print("NCAAB Total Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB Total page is now live")
-    add_betql_data(TabType.NCAAB_Total, 1)
-
-
-def add_betql_first_half_spread_ncaab():
-    browser.get('https://betql.co/ncaab/odds/first-half-lines')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB First Half Spread Page is ready!")
-    except TimeoutException:
-        print("NCAAB First Half Spread Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB First Half Spread page is now live")
-    add_betql_data(TabType.NCAAB_FirstHalfSpread, 1)
-
-
-def add_betql_first_half_moneyline_ncaab():
-    browser.get('https://betql.co/ncaab/odds/first-half-moneyline')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB First Half Moneyline Page is ready!")
-    except TimeoutException:
-        print("NCAAB First Half Moneyline Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB First Half Moneyline Total page is now live")
-    add_betql_data(TabType.NCAAB_FirstHalfMoneyline, 1)
-
-
-def add_betql_first_half_total_ncaab():
-    browser.get('https://betql.co/ncaab/odds/first-half-totals-spread')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB First Half Total Page is ready!")
-    except TimeoutException:
-        print("NCAAB First Half Total Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB First Half Total Total page is now live")
-    add_betql_data(TabType.NCAAB_FirstHalfTotal, 1)
-
-
-def add_betql_second_half_spread_ncaab():
-    browser.get('https://betql.co/ncaab/odds/second-half-lines')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB Second Half Spread Page is ready!")
-    except TimeoutException:
-        print("NCAAB Second Half Spread Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB Second Half Spread Total page is now live")
-    add_betql_data(TabType.NCAAB_SecondHalfSpread, 1)
-
-
-def add_betql_second_half_moneyline_ncaab():
-    browser.get('https://betql.co/ncaab/odds/second-half-moneylines')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NCAAB Second Half Moneyline Page is ready!")
-    except TimeoutException:
-        print("NCAAB Second Half Moneyline Loading took too much time!")
-    time.sleep(8)
-    print("NCAAB Second Half Moneyline Total page is now live")
-    add_betql_data(TabType.NCAAB_SecondHalfMoneyline, 1)
-
-
-def add_betql_spread_nba():
-    browser.get('https://betql.co/nba/odds')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA Spread Page is ready!")
-    except TimeoutException:
-        print("NBA Spread Loading took too much time!")
-    time.sleep(8)
-    print("NBA Spread Page is now live!")
-    add_betql_data(TabType.NBA_Spread, 0)
-
-
-def add_betql_moneyline_nba():
-    browser.get('https://betql.co/nba/odds/moneyline')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA Moneyline Page is ready!")
-    except TimeoutException:
-        print("NBA Moneyline Loading took too much time!")
-    time.sleep(8)
-    print("NBA Moneyline Page is now live!")
-    add_betql_data(TabType.NBA_Moneyline, 0)
-
-
-def add_betql_total_nba():
-    browser.get('https://betql.co/nba/odds/totals-spread')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA Total Page is ready!")
-    except TimeoutException:
-        print("NBA Total Loading took too much time!")
-    time.sleep(8)
-    print("NBA Total Page is now live!")
-    add_betql_data(TabType.NBA_Total, 0)
-
-
-def add_betql_first_half_spread_nba():
-    browser.get('https://betql.co/nba/odds/first-half-lines')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA First_Half_Spread Page is ready!")
-    except TimeoutException:
-        print("NBA First_Half_Spread Loading took too much time!")
-    time.sleep(8)
-    print("NBA First_Half_Spread Page is now live!")
-    add_betql_data(TabType.NBA_FirstHalfSpread, 0)
-
-
-def add_betql_first_half_moneyline_nba():
-    browser.get('https://betql.co/nba/odds/first-half-moneyline')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA First_Half_Moneyline Page is ready!")
-    except TimeoutException:
-        print("NBA First_Half_Moneyline Loading took too much time!")
-    time.sleep(8)
-    print("NBA First_Half_Moneyline Page is now live!")
-    add_betql_data(TabType.NBA_FirstHalfMoneyline, 0)
-
-
-def add_betql_first_half_total_nba():
-    browser.get('https://betql.co/nba/odds/first-half-totals-spread')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA First_Half_Total Page is ready!")
-    except TimeoutException:
-        print("NBA First_Half_Total Loading took too much time!")
-    time.sleep(8)
-    print("NBA First_Half_Total Page is now live!")
-    add_betql_data(TabType.NBA_FirstHalfTotal, 0)
-
-
-def add_betql_second_half_spread_nba():
-    browser.get('https://betql.co/nba/odds/second-half-lines')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA Second_Half_Spread Page is ready!")
-    except TimeoutException:
-        print("NBA Second_Half_Spread Loading took too much time!")
-    time.sleep(8)
-    print("NBA Second_Half_Spread Page is now live!")
-    add_betql_data(TabType.NBA_SecondHalfSpread, 0)
-
-
-def add_betql_second_half_moneyline_nba():
-    browser.get('https://betql.co/nba/odds/second-half-moneylines')
-    try:
-        myElem = WebDriverWait(browser, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//a[@class='games-table-column__team-link']")))
-        print("NBA Second_Half_Moneyline Page is ready!")
-    except TimeoutException:
-        print("NBA Second_Half_Moneyline Loading took too much time!")
-    time.sleep(8)
-    print("NBA Second_Half_Moneyline Page is now live!")
-    add_betql_data(TabType.NBA_SecondHalfMoneyline, 0)
-
-
-def add_betql_data(tab_type, is_ncaab):
-    data_list = []
-    game_table_column = browser.find_element_by_class_name('games-container').find_elements_by_class_name(
-        'games-table-column')[0]
-    a_list = game_table_column.find_elements_by_xpath("//a[@class='games-table-column__team-link']")
-    for col_a in a_list:
-        if tab_type == TabType.NCAAB_Spread:
-            new_betql = BetQLSpreadNCAAB()
-        elif tab_type == TabType.NCAAB_Moneyline:
-            new_betql = BetQLMoneylineNCAAB()
-        elif tab_type == TabType.NCAAB_Total:
-            new_betql = BetQLTotalNCAAB()
-        elif tab_type == TabType.NCAAB_FirstHalfSpread:
-            new_betql = BetQL1stHalfSpreadNCAAB()
-        elif tab_type == TabType.NCAAB_FirstHalfMoneyline:
-            new_betql = BetQL1stHalfMoneylineNCAAB()
-        elif tab_type == TabType.NCAAB_FirstHalfTotal:
-            new_betql = BetQL1stHalfTotalNCAAB()
-        elif tab_type == TabType.NCAAB_SecondHalfSpread:
-            new_betql = BetQL2ndHalfSpreadNCAAB()
-        elif tab_type == TabType.NCAAB_SecondHalfMoneyline:
-            new_betql = BetQL2ndHalfMoneylineNCAAB()
-        elif tab_type == TabType.NBA_Spread:
-            new_betql = BetQLSpreadNBA()
-        elif tab_type == TabType.NBA_Moneyline:
-            new_betql = BetQLMoneylineNBA()
-        elif tab_type == TabType.NBA_Total:
-            new_betql = BetQLTotalNBA()
-        elif tab_type == TabType.NBA_FirstHalfSpread:
-            new_betql = BetQL1stHalfSpreadNBA()
-        elif tab_type == TabType.NBA_FirstHalfMoneyline:
-            new_betql = BetQL1stHalfMoneylineNBA()
-        elif tab_type == TabType.NBA_FirstHalfTotal:
-            new_betql = BetQL1stHalfTotalNBA()
-        elif tab_type == TabType.NBA_SecondHalfSpread:
-            new_betql = BetQL2ndHalfSpreadNBA()
-        elif tab_type == TabType.NBA_SecondHalfMoneyline:
-            new_betql = BetQL2ndHalfMoneylineNBA()
-        new_betql.Date = date.today()
-        date_time = col_a.find_element_by_class_name('games-table-column__team-date-cell').get_attribute('innerHTML')
-        date_time = date_time.split("<span")[0]
-        print(date_time.split(', '))
-        new_betql.Time = '' if len(date_time.split(', ')) <= 1 else date_time.split(', ')[1]
-        team_list = col_a.find_elements_by_class_name('games-table-column__team-container')
-        try:
-            svg = team_list[0].find_element_by_tag_name('svg')
-            new_betql.HomeFirst = 1
-            new_betql.HomeTeam = team_list[0].find_element_by_class_name(
-                'games-table-column__team-info-container').find_element_by_tag_name('p').get_attribute(
-                'innerHTML').split("<span")[0]
-            new_betql.AwayTeam = team_list[1].find_element_by_class_name(
-                'games-table-column__team-info-container').find_element_by_tag_name('p').get_attribute(
-                'innerHTML').split("<span")[0]
-        except NoSuchElementException:
-            new_betql.HomeFirst = 0
-            new_betql.HomeTeam = team_list[1].find_element_by_class_name(
-                'games-table-column__team-info-container').find_element_by_tag_name('p').get_attribute(
-                'innerHTML').split("<span")[0]
-            new_betql.AwayTeam = team_list[0].find_element_by_class_name(
-                'games-table-column__team-info-container').find_element_by_tag_name('p').get_attribute(
-                'innerHTML').split("<span")[0]
-        data_list.append(new_betql)
-    info_list = browser.find_element_by_class_name('sticky-container').find_elements_by_class_name('games-table-column')
-    for info_index, info in enumerate(info_list):
-        if is_ncaab:
-            if info_index == 0:  # current-sp
-                cell_list = info.find_elements_by_class_name('games-table-column__current-line-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_CurrentSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_CurrentSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 1:  # best bet rating
-                cell_list = info.find_elements_by_class_name('games-table-column__value-rating-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    rating_container = cell.find_elements_by_class_name('games-table-column__rating-container')[0] \
-                        if data_list[cell_index].HomeFirst == 1 else \
-                        cell.find_elements_by_class_name('games-table-column__rating-container')[1]
-                    stars = rating_container.find_elements_by_tag_name('path')
-                    rating = 0
-                    for star in stars:
-                        if star.value_of_css_property('fill') == 'rgb(255, 204, 1)':
-                            rating += 1
-                    data_list[cell_index].H_BetRating = str(rating)
-                    data_list[cell_index].A_BetRating = '0'
-            elif info_index == 2:  # Road O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_RoadOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_RoadOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 3:  # Home O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_HomeOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_HomeOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 4:  # Under %
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Under = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Under = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 5:  # Over %
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Over = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Over = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 6:  # Under Record
-                cell_list = info.find_elements_by_class_name('games-table-column__under-record-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_UnderRecord = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_UnderRecord = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 7:  # Over Record
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OverRecord = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OverRecord = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 8:  # Net Units
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_NetUnits = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_NetUnits = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 9:  # Road
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Road = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Road = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 10:  # Home
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Home = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Home = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 11:  # Season Win %
-                cell_list = info.find_elements_by_class_name('games-table-column__season-win-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_SeasonWin = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_SeasonWin = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 12:  # Games
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Games = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Games = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 13:  # ATS Units
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ATSUnits = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ATSUnits = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 14:  # Road ATS
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_RoadATS = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_RoadATS = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 15:  # Home ATS
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_HomeATS = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_HomeATS = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 16:  # ATS Win %
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ATSWin = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ATSWin = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 17:  # ATS Rec
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ATSRec = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ATSRec = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 18:  # Pro Edge-Sp
-                cell_list = info.find_elements_by_class_name('games-table-column__pro-edge-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ProEdgeSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ProEdgeSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 19:  # U of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-under-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 20:  # O of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-over-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsO = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsO = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 21:  # ML of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-ml-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 22:  # SP of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-spread-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 23:  # Money % - SP
-                cell_list = info.find_elements_by_class_name('games-table-column__money-percent-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_MoneySP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_MoneySP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 24:  # Ticket % - SP
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-percent-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 25:  # Line Move - O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__line-move-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_LineMoveOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_LineMoveOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 26:  # Line Move - ML
-                cell_list = info.find_elements_by_class_name('games-table-column__line-move-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_LineMoveML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_LineMoveML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 27:  # Line Move - SP
-                cell_list = info.find_elements_by_class_name('games-table-column__line-move-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_LineMoveSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_LineMoveSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 28:  # Open - O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OpenOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OpenOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 29:  # Current - O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__current-ou-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_CurrentOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_CurrentOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 30:  # Open - ML
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OpenML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OpenML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 31:  # Current - ML
-                cell_list = info.find_elements_by_class_name('games-table-column__current-ml-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_CurrentML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_CurrentML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 32:  # Open - SP
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OpenSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OpenSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
+def betql_work(is_nba):
+    betql_res = requests.post(api_url,
+                              json={
+                                  "operationName": "eventsQuery",
+                                  "variables": {
+                                      "league": "NBA" if is_nba else "CBK",
+                                      "lineType": ["CURRENT", "OPEN"],
+                                      "before": before_date,
+                                      "after": after_date,
+                                      "period": ["FULLGAME", "FIRSTHALF", "SECONDHALF"],
+                                      "books": [book_id],
+                                      "book": book_id,
+                                      "hasTeamPowerProjectionGrades": True,
+                                      "hasFGspreadPowerRating": True,
+                                      "hasFGmoneylinePowerRating": True,
+                                      "hasFGtotalPowerRating": True,
+                                      "has1HspreadPowerRating": True,
+                                      "has1HmoneylinePowerRating": True,
+                                      "has1HtotalPowerRating": True,
+                                      "has1PspreadPowerRating": False,
+                                      "has1PmoneylinePowerRating": False,
+                                      "has1PtotalPowerRating": False,
+                                      "hasPitchers": False,
+                                      "isNBA": True if is_nba else False
+                                  },
+                                  "query": "query eventsQuery($league: LeagueEnum, $before: DateTime, $after: DateTime, $period: [LinePeriodEnum], $books: [UUID], $book: UUID!, $lineType: [LineTypeEnum], $conference: CFBConferenceEnum, $hasTeamPowerProjectionGrades: Boolean!, $hasFGspreadPowerRating: Boolean!, $hasFGmoneylinePowerRating: Boolean!, $hasFGtotalPowerRating: Boolean!, $has1HspreadPowerRating: Boolean!, $has1HmoneylinePowerRating: Boolean!, $has1HtotalPowerRating: Boolean!, $has1PspreadPowerRating: Boolean!, $has1PmoneylinePowerRating: Boolean!, $has1PtotalPowerRating: Boolean!, $hasPitchers: Boolean!, $isNBA: Boolean!) {\n  auth {\n    events(league: $league, before: $before, after: $after, eventType: TEAM, conference: $conference) {\n      id\n      dbId\n      freeGame\n      slugId\n      eventState\n      startDate\n      awayRot\n      awayScore\n      homeRot\n      homeScore\n      period\n      statfoxGamecode\n      awayTeamPowerRating\n      homeTeamPowerRating\n      neutral\n      stadium\n      location\n      projection @include(if: $hasTeamPowerProjectionGrades) {\n        projHomeScore\n        projAwayScore\n        projHomeFirstHalfScore\n        projAwayFirstHalfScore\n        projHomeKeyPlayerGradeScore\n        projHomeKeyPlayerGrade\n        projAwayKeyPlayerGradeScore\n        projAwayKeyPlayerGrade\n        projHomeOffenseGradeScore\n        projHomeOffenseGrade\n        projAwayOffenseGradeScore\n        projAwayOffenseGrade\n        projHomeDefenseGradeScore\n        projHomeDefenseGrade\n        projAwayDefenseGradeScore\n        projAwayDefenseGrade\n        projHomeTeamGrade\n        projHomeTeamGradeScore\n        projAwayTeamGrade\n        projAwayTeamGradeScore\n        projHomeGoalie\n        projAwayGoalie\n        __typename\n      }\n      spRating(bookUuid: $book) @include(if: $hasFGspreadPowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTeamId\n        __typename\n      }\n      mlRating(bookUuid: $book) @include(if: $hasFGmoneylinePowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTeamId\n        __typename\n      }\n      ouRating(bookUuid: $book) @include(if: $hasFGtotalPowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTotal\n        __typename\n      }\n      sp1HRating(bookUuid: $book) @include(if: $has1HspreadPowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTeamId\n        __typename\n      }\n      ml1HRating(bookUuid: $book) @include(if: $has1HmoneylinePowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTeamId\n        __typename\n      }\n      ou1HRating(bookUuid: $book) @include(if: $has1HtotalPowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTotal\n        __typename\n      }\n      sp1PRating(bookUuid: $book) @include(if: $has1PspreadPowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTeamId\n        __typename\n      }\n      ml1PRating(bookUuid: $book) @include(if: $has1PmoneylinePowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTeamId\n        __typename\n      }\n      ou1PRating(bookUuid: $book) @include(if: $has1PtotalPowerRating) {\n        rating\n        differential\n        preferredLine\n        preferredTotal\n        __typename\n      }\n      awayTeamPitcher @include(if: $hasPitchers) {\n        id\n        fullName\n        firstName\n        lastName\n        position\n        imageUrl\n        __typename\n      }\n      homeTeamPitcher @include(if: $hasPitchers) {\n        id\n        fullName\n        firstName\n        lastName\n        position\n        imageUrl\n        __typename\n      }\n      homeTeam {\n        id\n        fullName\n        lastName\n        preferredAbbreviation\n        conference\n        division\n        teamStats {\n          id\n          atsUnits\n          atswins\n          atslosses\n          atsties\n          atsWinPercent\n          games\n          netUnits\n          overPercent\n          overs\n          pushes\n          underPercent\n          unders\n          rank\n          wins\n          losses\n          confWins\n          confLosses\n          pointsAgainst @include(if: $isNBA)\n          pointsFor @include(if: $isNBA)\n          homeSuWins\n          awaySuWins\n          homeSuLosses\n          awaySuLosses\n          homeSuTies\n          awaySuTies\n          homeAtsWins\n          awayAtsWins\n          homeAtsLosses\n          awayAtsLosses\n          homeAtsTies\n          awayAtsTies\n          homeOvers\n          awayOvers\n          homeUnders\n          awayUnders\n          homePushes\n          awayPushes\n          __typename\n        }\n        injuredPlayers(maxPriority: 3) {\n          id\n          fullName\n          imageUrl\n          injuryStatus\n          active\n          depthPositionCategory\n          depthPosition\n          depthOrder\n          news {\n            id\n            playerId\n            title\n            newsTime\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      awayTeam {\n        id\n        fullName\n        lastName\n        preferredAbbreviation\n        conference\n        division\n        injuredPlayers(maxPriority: 3) {\n          id\n          fullName\n          imageUrl\n          injuryStatus\n          active\n          depthPositionCategory\n          depthPosition\n          depthOrder\n          news {\n            id\n            playerId\n            title\n            newsTime\n            __typename\n          }\n          __typename\n        }\n        teamStats {\n          id\n          atsUnits\n          atswins\n          atslosses\n          atsties\n          atsWinPercent\n          games\n          netUnits\n          overPercent\n          overs\n          pushes\n          underPercent\n          unders\n          rank\n          wins\n          losses\n          confWins\n          confLosses\n          pointsAgainst @include(if: $isNBA)\n          pointsFor @include(if: $isNBA)\n          homeSuWins\n          awaySuWins\n          homeSuLosses\n          awaySuLosses\n          homeSuTies\n          awaySuTies\n          homeAtsWins\n          awayAtsWins\n          homeAtsLosses\n          awayAtsLosses\n          homeAtsTies\n          awayAtsTies\n          homeOvers\n          awayOvers\n          homeUnders\n          awayUnders\n          homePushes\n          awayPushes\n          __typename\n        }\n        __typename\n      }\n      league {\n        id\n        name\n        __typename\n      }\n      lines(bookIds: $books, period: $period, lineType: $lineType) {\n        bookId\n        book {\n          id\n          name\n          __typename\n        }\n        id\n        time\n        type\n        lineType\n        period\n        awaySpread\n        awayMoney\n        awayPrice\n        homeSpread\n        homeMoney\n        homePrice\n        drawMoney\n        total\n        overPrice\n        underPrice\n        __typename\n      }\n      userNotificationSetting {\n        id\n        importantNews\n        gameStart\n        secondHalfLineAvailable\n        __typename\n      }\n      periodScores {\n        id\n        eventId\n        period\n        time\n        homeScore\n        awayScore\n        order\n        __typename\n      }\n      eventStats(period: $period) {\n        id\n        period\n        homeSpreadCount\n        awaySpreadCount\n        homeMoneyCount\n        awayMoneyCount\n        overCount\n        underCount\n        homeSharpSpreadPercent\n        awaySharpSpreadPercent\n        homeSharpMoneyPercent\n        awaySharpMoneyPercent\n        overSharpPercent\n        underSharpPercent\n        homeTicketSpreadPercent\n        awayTicketSpreadPercent\n        homeTicketMoneyPercent\n        awayTicketMoneyPercent\n        overTicketPercent\n        underTicketPercent\n        publicSpreadHome\n        publicSpreadAway\n        publicMoneyHome\n        publicMoneyAway\n        publicTotalOver\n        publicTotalUnder\n        __typename\n      }\n      eventTrends(bookUuid: $book, trendTypes: [ATS, ML, HTATS, OU]) {\n        id\n        teamId\n        timePeriod\n        description\n        typeGames\n        rating\n        trendType\n        reportType\n        wins\n        losses\n        games\n        units\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}\n"},
+                              headers={
+                                  'Content-Type': 'application/json',
+                                  'Authorization': 'Bearer ' + token})
+    # print(betql_res.json()['data']['auth']['events'])
+    event_list = betql_res.json()['data']['auth']['events']
+    for event in event_list:
+        home_team_info = event['homeTeam']
+        away_team_info = event['awayTeam']
+        if is_nba:
+            team1_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
+                                home_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                nba_team_info[1] + '}, "\'", " ")="' + \
+                                home_team_info['fullName'].replace("'", " ") + '")'
+            team2_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
+                                away_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                nba_team_info[1] + '}, "\'", " ")="' + \
+                                away_team_info['fullName'].replace("'", " ") + '")'
+            home_team = airtable_nba_team.get_all(formula=team1_formula_str)
+            away_team = airtable_nba_team.get_all(formula=team2_formula_str)
+            if not home_team:
+                home_team = airtable_nba_team.insert(
+                    {nba_team_info[0]: home_team_info['preferredAbbreviation'],
+                     nba_team_info[1]: home_team_info['fullName'], })
+            else:
+                home_team = home_team[0]
+            if not away_team:
+                away_team = airtable_nba_team.insert(
+                    {nba_team_info[0]: away_team_info['preferredAbbreviation'],
+                     nba_team_info[1]: away_team_info['fullName']})
+            else:
+                away_team = away_team[0]
         else:
-            if info_index == 0:  # current-sp
-                cell_list = info.find_elements_by_class_name('games-table-column__current-line-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_CurrentSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_CurrentSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 1:  # best bet rating
-                cell_list = info.find_elements_by_class_name('games-table-column__value-rating-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    rating_container = cell.find_elements_by_class_name('games-table-column__rating-container')[0] \
-                        if data_list[cell_index].HomeFirst == 1 else \
-                        cell.find_elements_by_class_name('games-table-column__rating-container')[1]
-                    stars = rating_container.find_elements_by_tag_name('path')
-                    rating = 0
-                    for star in stars:
-                        if star.value_of_css_property('fill') == 'rgb(255, 204, 1)':
-                            rating += 1
-                    data_list[cell_index].H_BetRating = str(rating)
-                    data_list[cell_index].A_BetRating = '0'
-            elif info_index == 2:  # Points Against
-                cell_list = info.find_elements_by_class_name('games-table-column__pts-against-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_PointsAgainst = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_PointsAgainst = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 3:  # Points For
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_PointsFor = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_PointsFor = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 4:  # Pro Edge-Sp
-                cell_list = info.find_elements_by_class_name('games-table-column__pro-edge-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ProEdgeSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ProEdgeSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 5:  # U of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-under-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 6:  # O of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-over-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsO = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsO = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 7:  # ML of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-ml-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 8:  # Sp of Tickets
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-count-spread-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketsSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketsSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 9:  # Money % -Sp
-                cell_list = info.find_elements_by_class_name('games-table-column__money-percent-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_MoneySP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_MoneySP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 10:  # Ticket % -Sp
-                cell_list = info.find_elements_by_class_name('games-table-column__ticket-percent-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_TicketSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_TicketSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 11:  # Road O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_RoadOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_RoadOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 12:  # Home O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_HomeOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_HomeOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 13:  # Under %
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Under = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Under = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 14:  # Over %
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Over = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Over = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 15:  # Under Record
-                cell_list = info.find_elements_by_class_name('games-table-column__under-record-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_UnderRecord = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_UnderRecord = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 16:  # Over Record
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OverRecord = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OverRecord = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 17:  # ATS Units
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ATSUnits = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ATSUnits = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 18:  # Road ATS
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_RoadATS = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_RoadATS = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 19:  # Home ATS
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_HomeATS = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_HomeATS = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 20:  # ATS Win %
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ATSWin = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ATSWin = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 21:  # ATS Rec
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_ATSRec = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_ATSRec = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 22:  # Net Units
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_NetUnits = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_NetUnits = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 23:  # Road
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Road = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Road = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 24:  # Home
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Home = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Home = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 25:  # Season Win %
-                cell_list = info.find_elements_by_class_name('games-table-column__season-win-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_SeasonWin = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_SeasonWin = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 26:  # Games
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_Games = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_Games = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 27:  # Line Move - O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__line-move-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_LineMoveOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_LineMoveOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 28:  # Line Move - ML
-                cell_list = info.find_elements_by_class_name('games-table-column__line-move-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_LineMoveML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_LineMoveML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 29:  # Line Move - Sp
-                cell_list = info.find_elements_by_class_name('games-table-column__line-move-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_LineMoveSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_LineMoveSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 30:  # Open - O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OpenOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OpenOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 31:  # Current - O/U
-                cell_list = info.find_elements_by_class_name('games-table-column__current-ou-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_CurrentOU = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_CurrentOU = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 32:  # Open - ML
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OpenML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OpenML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 33:  # Current - ML
-                cell_list = info.find_elements_by_class_name('games-table-column__current-ml-cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_CurrentML = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_CurrentML = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-            elif info_index == 33:  # Open - Sp
-                cell_list = info.find_elements_by_class_name('games-table-column__cell')
-                for cell_index, cell in enumerate(cell_list):
-                    data_list[cell_index].H_OpenSP = cell.find_elements_by_tag_name('p')[0].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[1].get_attribute('innerHTML')
-                    data_list[cell_index].A_OpenSP = cell.find_elements_by_tag_name('p')[1].get_attribute(
-                        'innerHTML') if data_list[cell_index].HomeFirst == 1 else cell.find_elements_by_tag_name(
-                        'p')[0].get_attribute('innerHTML')
-        print(info_index+1)
+            team1_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
+                                home_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                ncaa_team_info[1] + '}, "\'", " ")="' + \
+                                home_team_info['fullName'].replace("'", " ") + '")'
+            team2_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
+                                away_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                ncaa_team_info[1] + '}, "\'", " ")="' + \
+                                away_team_info['fullName'].replace("'", " ") + '")'
+            home_team = airtable_ncaa_team.get_all(formula=team1_formula_str)
+            away_team = airtable_ncaa_team.get_all(formula=team2_formula_str)
+            if not home_team:
+                home_team = airtable_ncaa_team.insert(
+                    {ncaa_team_info[0]: home_team_info['preferredAbbreviation'],
+                     ncaa_team_info[1]: home_team_info['fullName'], })
+            else:
+                home_team = home_team[0]
+            if not away_team:
+                away_team = airtable_ncaa_team.insert(
+                    {ncaa_team_info[0]: away_team_info['preferredAbbreviation'],
+                     ncaa_team_info[1]: away_team_info['fullName']})
+            else:
+                away_team = away_team[0]
+        open_info = [None] * 3
+        current_info = [None] * 3
+        event_stats = [None] * 3
+        for line in event['lines']:
+            if line['lineType'] == 'open' and line['period'] == 'FG':
+                open_info[0] = line
+            elif line['lineType'] == 'open' and line['period'] == '1H':
+                open_info[1] = line
+            elif line['lineType'] == 'open' and line['period'] == '2H':
+                open_info[2] = line
+            elif line['lineType'] == 'current' and line['period'] == 'FG':
+                current_info[0] = line
+            elif line['lineType'] == 'current' and line['period'] == '1H':
+                current_info[1] = line
+            elif line['lineType'] == 'current' and line['period'] == '2H':
+                current_info[2] = line
+        for event_stat in event['eventStats']:
+            if event_stat['period'] == 'FG':
+                event_stats[0] = event_stat
+            elif event_stat['period'] == '1H':
+                event_stats[1] = event_stat
+            elif event_stat['period'] == '2H':
+                event_stats[2] = event_stat
 
-    session.add_all(data_list)
+        fields = {
+            'ID': event['id'],
+            'SlugID': event['slugId'],
+            'HomeTeam': [home_team['id']],
+            'AwayTeam': [away_team['id']],
+            'EventState': event['eventState'],
+            'StartDate': event['startDate'],
+            'H_current_spread': current_info[0]['homeSpread'] if
+            current_info[0] is not None and current_info[0]['homeSpread'] is not None else None,
+            'A_current_spread': current_info[0]['awaySpread'] if
+            current_info[0] is not None and current_info[0]['awaySpread'] is not None else None,
+            'Spread_best_rating': event['spRating']['rating'] if
+            event['spRating'] is not None and event['spRating']['rating'] is not None else None,
+            'H_current_moneyline': current_info[0]['homeMoney'] if
+            current_info[0] is not None and current_info[0]['homeMoney'] is not None else None,
+            'A_current_moneyline': current_info[0]['awayMoney'] if
+            current_info[0] is not None and current_info[0]['awayMoney'] is not None else None,
+            'Moneyline_best_rating': event['mlRating']['rating'] if
+            event['mlRating'] is not None and event['mlRating']['rating'] is not None else None,
+            'Current_U': current_info[0]['total'] if
+            current_info[0] is not None and current_info[0]['total'] is not None and
+            event['ouRating'] is not None and event['ouRating']['preferredTotal'] is not None and
+            event['ouRating']['preferredTotal'] is 'under' else None,
+            'Current_O': current_info[0]['total'] if
+            current_info[0] is not None and current_info[0]['total'] is not None and
+            event['ouRating'] is not None and event['ouRating']['preferredTotal'] is not None and
+            event['ouRating']['preferredTotal'] is 'over' else None,
+            'Total_best_rating': event['ouRating']['rating'] if
+            event['ouRating'] is not None and event['ouRating']['rating'] is not None else None,
+            'H_current_1h_spread': current_info[1]['homeSpread'] if
+            current_info[1] is not None and current_info[1]['homeSpread'] is not None else None,
+            'A_current_1h_spread': current_info[1]['awaySpread'] if
+            current_info[1] is not None and current_info[1]['awaySpread'] is not None else None,
+            '1h_spread_best_rating': event['sp1HRating']['rating'] if
+            event['sp1HRating'] is not None and event['sp1HRating']['rating'] is not None else None,
+            'H_current_1h_moneyline': current_info[1]['homeMoney'] if
+            current_info[1] is not None and current_info[1]['homeMoney'] is not None else None,
+            'A_current_1h_moneyline': current_info[1]['awayMoney'] if
+            current_info[1] is not None and current_info[1]['awayMoney'] is not None else None,
+            '1h_moneyline_best_rating': event['ml1HRating']['rating'] if
+            event['ml1HRating'] is not None and event['ml1HRating']['rating'] is not None else None,
+            'Current_1h_U': current_info[1]['total'] if
+            current_info[1] is not None and current_info[1]['total'] is not None and
+            event['ou1HRating'] is not None and event['ou1HRating']['preferredTotal'] is not None and
+            event['ou1HRating']['preferredTotal'] is 'under' else None,
+            'Current_1h_O': current_info[1]['total'] if
+            current_info[1] is not None and current_info[1]['total'] is not None and
+            event['ou1HRating'] is not None and event['ou1HRating']['preferredTotal'] is not None and
+            event['ou1HRating']['preferredTotal'] is 'over' else None,
+            '1h_total_best_rating': event['ou1HRating']['rating'] if
+            event['ou1HRating'] is not None and event['ou1HRating']['rating'] is not None else None,
+            'H_current_2h_spread': current_info[2]['homeSpread'] if
+            current_info[2] is not None and current_info[2]['homeSpread'] is not None else None,
+            'A_current_2h_spread': current_info[2]['awaySpread'] if
+            current_info[2] is not None and current_info[2]['awaySpread'] is not None else None,
+            'H_current_2h_moneyline': current_info[2]['homeMoney'] if
+            current_info[2] is not None and current_info[2]['homeMoney'] is not None else None,
+            'A_current_2h_moneyline': current_info[2]['awayMoney'] if
+            current_info[2] is not None and current_info[2]['awayMoney'] is not None else None,
+            'H_road_ou': str(home_team_info['teamStats']['awayOvers']) + ' - ' + str(home_team_info['teamStats'][
+                                                                                         'awayUnders']) + ' - ' + str(
+                home_team_info['teamStats']['awayPushes']) if
+            home_team_info['teamStats']['awayOvers'] is not None and
+            home_team_info['teamStats']['awayUnders'] is not None and
+            home_team_info['teamStats']['awayPushes'] is not None else None,
+            'A_road_ou': str(away_team_info['teamStats']['awayOvers']) + ' - ' + str(away_team_info['teamStats'][
+                                                                                         'awayUnders']) + ' - ' + str(
+                away_team_info['teamStats']['awayPushes']) if
+            away_team_info['teamStats']['awayOvers'] is not None and
+            away_team_info['teamStats']['awayUnders'] is not None and
+            away_team_info['teamStats']['awayPushes'] is not None else None,
+            'H_home_ou': str(home_team_info['teamStats']['homeOvers']) + ' - ' + str(home_team_info['teamStats'][
+                                                                                         'homeUnders']) + ' - ' + str(
+                home_team_info['teamStats']['homePushes']) if
+            home_team_info['teamStats']['homeOvers'] is not None and
+            home_team_info['teamStats']['homeUnders'] is not None and
+            home_team_info['teamStats']['homePushes'] is not None else None,
+            'A_home_ou': str(away_team_info['teamStats']['homeOvers']) + ' - ' + str(away_team_info['teamStats'][
+                                                                                         'homeUnders']) + ' - ' + str(
+                away_team_info['teamStats']['homePushes']) if
+            away_team_info['teamStats']['homeOvers'] is not None and
+            away_team_info['teamStats']['homeUnders'] is not None and
+            away_team_info['teamStats']['homePushes'] is not None else None,
+            'H_under': home_team_info['teamStats']['underPercent'] / 100 if
+            home_team_info['teamStats']['underPercent'] is not None else None,
+            'A_under': away_team_info['teamStats']['underPercent'] / 100 if
+            away_team_info['teamStats']['underPercent'] is not None else None,
+            'H_over': home_team_info['teamStats']['overPercent'] / 100 if
+            home_team_info['teamStats']['overPercent'] is not None else None,
+            'A_over': away_team_info['teamStats']['overPercent'] / 100 if
+            away_team_info['teamStats']['overPercent'] is not None else None,
+            'H_under_record': str(home_team_info['teamStats']['unders']) + ' - ' + str(
+                home_team_info['teamStats']['overs']) + ' - ' + str(home_team_info['teamStats']['pushes']) if
+            home_team_info['teamStats']['unders'] is not None and
+            home_team_info['teamStats']['overs'] is not None and
+            home_team_info['teamStats']['pushes'] is not None else None,
+            'A_under_record': str(away_team_info['teamStats']['unders']) + ' - ' + str(
+                away_team_info['teamStats']['overs']) + ' - ' + str(away_team_info['teamStats']['pushes']) if
+            away_team_info['teamStats']['unders'] is not None and
+            away_team_info['teamStats']['overs'] is not None and
+            away_team_info['teamStats']['pushes'] is not None else None,
+            'H_over_record': str(home_team_info['teamStats']['overs']) + ' - ' + str(
+                home_team_info['teamStats']['unders']) + ' - ' + str(home_team_info['teamStats']['pushes']) if
+            home_team_info['teamStats']['overs'] is not None and
+            home_team_info['teamStats']['unders'] is not None and
+            home_team_info['teamStats']['pushes'] is not None else None,
+            'A_over_record': str(away_team_info['teamStats']['overs']) + ' - ' + str(
+                away_team_info['teamStats']['unders']) + ' - ' + str(away_team_info['teamStats']['pushes']) if
+            away_team_info['teamStats']['overs'] is not None and
+            away_team_info['teamStats']['unders'] is not None and
+            away_team_info['teamStats']['pushes'] is not None else None,
+            'H_net_units': home_team_info['teamStats']['netUnits'] if
+            home_team_info['teamStats']['netUnits'] is not None else None,
+            'A_net_units': away_team_info['teamStats']['netUnits'] if
+            away_team_info['teamStats']['netUnits'] is not None else None,
+            'H_road': str(home_team_info['teamStats']['awaySuWins']) + ' - ' + str(home_team_info['teamStats'][
+                                                                                       'awaySuLosses']) + ' - ' + str(
+                home_team_info['teamStats']['awaySuTies']) if
+            home_team_info['teamStats']['awaySuWins'] is not None and
+            home_team_info['teamStats']['awaySuLosses'] is not None and
+            home_team_info['teamStats']['awaySuTies'] is not None else None,
+            'A_road': str(away_team_info['teamStats']['awaySuWins']) + ' - ' + str(away_team_info['teamStats'][
+                                                                                       'awaySuLosses']) + ' - ' + str(
+                away_team_info['teamStats']['awaySuTies']) if
+            away_team_info['teamStats']['awaySuWins'] is not None and
+            away_team_info['teamStats']['awaySuLosses'] is not None and
+            away_team_info['teamStats']['awaySuTies'] is not None else None,
+            'H_home': str(home_team_info['teamStats']['homeSuWins']) + ' - ' + str(home_team_info['teamStats'][
+                                                                                       'homeSuLosses']) + ' - ' + str(
+                home_team_info['teamStats']['homeSuTies']) if
+            home_team_info['teamStats']['homeSuWins'] is not None and
+            home_team_info['teamStats']['homeSuLosses'] is not None and
+            home_team_info['teamStats']['homeSuTies'] is not None else None,
+            'A_home': str(away_team_info['teamStats']['homeSuWins']) + ' - ' + str(away_team_info['teamStats'][
+                                                                                       'homeSuLosses']) + ' - ' + str(
+                away_team_info['teamStats']['homeSuTies']) if
+            away_team_info['teamStats']['homeSuWins'] is not None and
+            away_team_info['teamStats']['homeSuLosses'] is not None and
+            away_team_info['teamStats']['homeSuTies'] is not None else None,
+            'H_season_win': home_team_info['teamStats']['wins'] / (
+                    home_team_info['teamStats']['wins'] + home_team_info['teamStats']['losses']) if
+            home_team_info['teamStats']['wins'] is not None and home_team_info['teamStats'][
+                'losses'] is not None else None,
+            'A_season_win': away_team_info['teamStats']['wins'] / (
+                    away_team_info['teamStats']['wins'] + away_team_info['teamStats']['losses']) if
+            away_team_info['teamStats']['wins'] is not None and away_team_info['teamStats'][
+                'losses'] is not None else None,
+            'H_games': home_team_info['teamStats']['games'] if home_team_info['teamStats'][
+                                                                   'games'] is not None else None,
+            'A_games': away_team_info['teamStats']['games'] if away_team_info['teamStats'][
+                                                                   'games'] is not None else None,
+            'H_ATS_units': home_team_info['teamStats']['atsUnits'] if
+            home_team_info['teamStats']['atsUnits'] is not None else None,
+            'A_ATS_units': away_team_info['teamStats']['atsUnits'] if
+            away_team_info['teamStats']['atsUnits'] is not None else None,
+            'H_road_ATS': str(home_team_info['teamStats']['awayAtsWins']) + ' - ' + str(home_team_info['teamStats'][
+                                                                                            'awayAtsLosses']) + ' - ' + str(
+                home_team_info['teamStats']['awayAtsTies']) if
+            home_team_info['teamStats']['awayAtsWins'] is not None and
+            home_team_info['teamStats']['awayAtsLosses'] is not None and
+            home_team_info['teamStats']['awayAtsTies'] is not None else None,
+            'A_road_ATS': str(away_team_info['teamStats']['awayAtsWins']) + ' - ' + str(away_team_info['teamStats'][
+                                                                                            'awayAtsLosses']) + ' - ' + str(
+                away_team_info['teamStats']['awayAtsTies']) if
+            away_team_info['teamStats']['awayAtsWins'] is not None and
+            away_team_info['teamStats']['awayAtsLosses'] is not None and
+            away_team_info['teamStats']['awayAtsTies'] is not None else None,
+            'H_home_ATS': str(home_team_info['teamStats']['homeAtsWins']) + ' - ' + str(home_team_info['teamStats'][
+                                                                                            'homeAtsLosses']) + ' - ' + str(
+                home_team_info['teamStats']['homeAtsTies']) if
+            home_team_info['teamStats']['homeAtsWins'] is not None and
+            home_team_info['teamStats']['homeAtsLosses'] is not None and
+            home_team_info['teamStats']['homeAtsTies'] is not None else None,
+            'A_home_ATS': str(away_team_info['teamStats']['homeAtsWins']) + ' - ' + str(away_team_info['teamStats'][
+                                                                                            'homeAtsLosses']) + ' - ' + str(
+                away_team_info['teamStats']['homeAtsTies']) if
+            away_team_info['teamStats']['homeAtsWins'] is not None and
+            away_team_info['teamStats']['homeAtsLosses'] is not None and
+            away_team_info['teamStats']['homeAtsTies'] is not None else None,
+            'H_ATS_win': home_team_info['teamStats']['atsWinPercent'] / 100 if
+            home_team_info['teamStats']['atsWinPercent'] is not None else None,
+            'A_ATS_win': away_team_info['teamStats']['atsWinPercent'] / 100 if
+            away_team_info['teamStats']['atsWinPercent'] is not None else None,
+            'H_ATS_rec': str(home_team_info['teamStats']['atswins']) + ' - ' + str(home_team_info[
+                                                                                       'teamStats'][
+                                                                                       'atslosses']) + ' - ' + str(
+                home_team_info['teamStats']['atsties']) if
+            home_team_info['teamStats']['atswins'] is not None and
+            home_team_info['teamStats']['atslosses'] is not None and
+            home_team_info['teamStats']['atsties'] is not None else None,
+            'A_ATS_rec': str(away_team_info['teamStats']['atswins']) + ' - ' + str(away_team_info[
+                                                                                       'teamStats'][
+                                                                                       'atslosses']) + ' - ' + str(
+                away_team_info['teamStats']['atsties']) if
+            away_team_info['teamStats']['atswins'] is not None and
+            away_team_info['teamStats']['atslosses'] is not None and
+            away_team_info['teamStats']['atsties'] is not None else None,
+            'U_of_tickets': event_stats[0]['underCount'] if
+            event_stats[0] is not None and event_stats[0]['underCount'] is not None else None,
+            'O_of_tickets': event_stats[0]['overCount'] if
+            event_stats[0] is not None and event_stats[0]['overCount'] is not None else None,
+            'H_ml_of_tickets': event_stats[0]['homeMoneyCount'] if
+            event_stats[0] is not None and event_stats[0]['homeMoneyCount'] is not None else None,
+            'A_ml_of_tickets': event_stats[0]['awayMoneyCount'] if
+            event_stats[0] is not None and event_stats[0]['awayMoneyCount'] is not None else None,
+            'H_sp_of_tickets': event_stats[0]['homeSpreadCount'] if
+            event_stats[0] is not None and event_stats[0]['homeSpreadCount'] is not None else None,
+            'A_sp_of_tickets': event_stats[0]['awaySpreadCount'] if
+            event_stats[0] is not None and event_stats[0]['awaySpreadCount'] is not None else None,
+            'H_open_spread': open_info[0]['homeSpread'] if
+            open_info[0] is not None and open_info[0]['homeSpread'] is not None else None,
+            'A_open_spread': open_info[0]['awaySpread'] if
+            open_info[0] is not None and open_info[0]['awaySpread'] is not None else None,
+            'H_open_moneyline': open_info[0]['homeMoney'] if
+            open_info[0] is not None and open_info[0]['homeMoney'] is not None else None,
+            'A_open_moneyline': open_info[0]['awayMoney'] if
+            open_info[0] is not None and open_info[0]['awayMoney'] is not None else None,
+            'Open_U': open_info[0]['total'] if open_info[0] is not None and open_info[0]['total'] is not None and
+                                               event['ouRating']['preferredTotal'] is not None and
+                                               event['ouRating']['preferredTotal'] is 'under' else None,
+            'Open_O': open_info[0]['total'] if open_info[0] is not None and open_info[0]['total'] is not None and
+                                               event['ouRating']['preferredTotal'] is not None and
+                                               event['ouRating']['preferredTotal'] is 'over' else None,
+            'H_open_1h_spread': open_info[1]['homeSpread'] if
+            open_info[1] is not None and open_info[1]['homeSpread'] is not None else None,
+            'A_open_1h_spread': open_info[1]['awaySpread'] if
+            open_info[1] is not None and open_info[1]['awaySpread'] is not None else None,
+            'H_open_1h_moneyline': open_info[1]['homeMoney'] if
+            open_info[1] is not None and open_info[1]['homeMoney'] is not None else None,
+            'A_open_1h_moneyline': open_info[1]['awayMoney'] if
+            open_info[1] is not None and open_info[1]['awayMoney'] is not None else None,
+            'Open_1h_U': open_info[1]['total'] if open_info[1] is not None and open_info[1]['total'] is not None and
+                                                  event['ou1HRating']['preferredTotal'] is not None and
+                                                  event['ou1HRating']['preferredTotal'] is 'under' else None,
+            'Open_1h_O': open_info[1]['total'] if open_info[1] is not None and open_info[1]['total'] is not None and
+                                                  event['ou1HRating']['preferredTotal'] is not None and
+                                                  event['ou1HRating']['preferredTotal'] is 'over' else None,
+            'H_open_2h_spread': open_info[2]['homeSpread'] if
+            open_info[2] is not None and open_info[2]['homeSpread'] is not None else None,
+            'A_open_2h_spread': open_info[2]['awaySpread'] if
+            open_info[2] is not None and open_info[2]['awaySpread'] is not None else None,
+            'H_open_2h_moneyline': open_info[2]['homeMoney'] if
+            open_info[2] is not None and open_info[2]['homeMoney'] is not None else None,
+            'A_open_2h_moneyline': open_info[2]['awayMoney'] if
+            open_info[2] is not None and open_info[2]['awayMoney'] is not None else None
+        }
+        if is_nba:
+            fields['H_points_against'] = home_team_info['teamStats']['pointsAgainst'] if \
+                home_team_info['teamStats']['pointsAgainst'] is not None else None
+            fields['A_points_against'] = away_team_info['teamStats']['pointsAgainst'] if \
+                away_team_info['teamStats']['pointsAgainst'] is not None else None
+            fields['H_points_for'] = home_team_info['teamStats']['pointsFor'] if \
+                home_team_info['teamStats']['pointsFor'] is not None else None
+            fields['A_points_for'] = away_team_info['teamStats']['pointsFor'] if \
+                away_team_info['teamStats']['pointsFor'] is not None else None
+            record = airtable_betql_nba.match('ID', event['id'])
+            if record:
+                airtable_betql_nba.replace(record['id'], fields)
+            else:
+                airtable_betql_nba.insert(fields)
+        else:
+            record = airtable_betql_ncaa.match('ID', event['id'])
+            if record:
+                airtable_betql_ncaa.replace(record['id'], fields)
+            else:
+                airtable_betql_ncaa.insert(fields)
 
 
-recreate_betql_table()
-add_betql_spread_ncaab()
-add_betql_moneyline_ncaab()
-add_betql_total_ncaab()
-add_betql_first_half_spread_ncaab()
-add_betql_first_half_moneyline_ncaab()
-add_betql_first_half_total_ncaab()
-add_betql_second_half_spread_ncaab()
-add_betql_second_half_moneyline_ncaab()
-add_betql_spread_nba()
-add_betql_first_half_spread_nba()
-add_betql_first_half_moneyline_nba()
-add_betql_first_half_total_nba()
-add_betql_second_half_spread_nba()
-add_betql_second_half_moneyline_nba()
-
-session.commit()
-browser.close()
-close_connection()
+print("Betql-NCAA work")
+betql_work(0)
+print("Betql-NBA work")
+betql_work(1)
+print("Finished betql work")
