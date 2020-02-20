@@ -138,6 +138,7 @@ def add_oddshark_nba():
     block_system_main = browser.find_element_by_id("block-system-main")
     computer_tables = block_system_main.find_elements_by_css_selector('.table.table--striped.table--fixed-column')
     total_sheet_data = []
+    print(len(computer_tables))
     for computer_table in computer_tables:
         if computer_table.get_attribute('class') == 'table table--striped table--fixed-column':
             name_wraps = computer_table.find_elements_by_class_name('name-wrap')
