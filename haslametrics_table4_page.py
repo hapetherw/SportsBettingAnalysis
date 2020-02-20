@@ -4,7 +4,7 @@ from models.hasla_metrics_model import TeamScoreHASLAMETRICS
 # from database import recreate_hasla_metrics_table
 # from database import close_connection
 import datetime
-import pandas as pd
+# import pandas as pd
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_haslametrics
 from airtable_init import airtable_game_date

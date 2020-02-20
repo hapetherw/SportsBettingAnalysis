@@ -5,7 +5,7 @@ import datetime
 # from database import session
 # from database import recreate_oddshark_table
 # from database import close_connection
-import pandas as pd
+# import pandas as pd
 from airtable_init import airtable_ncaab
 from airtable_init import airtable_nba
 from airtable_init import airtable_ncaa_team
