@@ -1,9 +1,9 @@
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from models.vegas_insider_model import VegasInsider
-from database import session
-from database import recreate_vegas_insider_table
-from database import close_connection
+# from models.vegas_insider_model import VegasInsider
+# from database import session
+# from database import recreate_vegas_insider_table
+# from database import close_connection
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_vegasinsider_ncaa
 from airtable_init import airtable_season
@@ -29,19 +29,19 @@ def add_vegas_insider():
         except NoSuchElementException:
             team_name = td_list[1].get_attribute('innerHTML').strip()
         # print(team_name)
-        if action_type == 1:
-            new_vegas_insider_model = VegasInsider(team_name, td_list[0].text,
-                                                   td_list[2].text, td_list[3].text, td_list[4].text, td_list[5].text,
-                                                   td_list[6].text, td_list[7].text, td_list[8].text, td_list[9].text,
-                                                   td_list[10].text, td_list[11].text, td_list[12].text,
-                                                   td_list[13].text,
-                                                   td_list[14].text, td_list[15].text, td_list[16].text,
-                                                   td_list[17].text,
-                                                   td_list[18].text, td_list[19].text, td_list[20].text,
-                                                   td_list[21].text,
-                                                   td_list[22].text, td_list[23].text)
-            session.add(new_vegas_insider_model)
-        elif action_type == 2:
+        # if action_type == 1:
+        #     new_vegas_insider_model = VegasInsider(team_name, td_list[0].text,
+        #                                            td_list[2].text, td_list[3].text, td_list[4].text, td_list[5].text,
+        #                                            td_list[6].text, td_list[7].text, td_list[8].text, td_list[9].text,
+        #                                            td_list[10].text, td_list[11].text, td_list[12].text,
+        #                                            td_list[13].text,
+        #                                            td_list[14].text, td_list[15].text, td_list[16].text,
+        #                                            td_list[17].text,
+        #                                            td_list[18].text, td_list[19].text, td_list[20].text,
+        #                                            td_list[21].text,
+        #                                            td_list[22].text, td_list[23].text)
+        #     session.add(new_vegas_insider_model)
+        if action_type == 2:
             team_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
                                team_name.replace("'", " ") + '", SUBSTITUTE({' + \
                                ncaa_team_info[1] + '}, "\'", " ")="' + \
@@ -89,14 +89,14 @@ def add_vegas_insider():
 
 print("Start VegasInsider work")
 action_type = 2
-if action_type == 1:
-    recreate_vegas_insider_table()
-    add_vegas_insider()
-
-    session.commit()
-    browser.close()
-    close_connection()
-else:
-    add_vegas_insider()
-    browser.close()
+# if action_type == 1:
+#     recreate_vegas_insider_table()
+#     add_vegas_insider()
+#
+#     session.commit()
+#     browser.close()
+#     close_connection()
+# else:
+add_vegas_insider()
+browser.close()
 print("Finished VegasInsider work")

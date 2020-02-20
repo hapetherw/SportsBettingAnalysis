@@ -1,8 +1,8 @@
 from selenium import webdriver
-from models.espn_model import ESPNNCAAB
-from database import session
-from database import recreate_espn_table
-from database import close_connection
+# from models.espn_model import ESPNNCAAB
+# from database import session
+# from database import recreate_espn_table
+# from database import close_connection
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_espn_ncaa
 from airtable_init import airtable_season
@@ -44,12 +44,12 @@ def add_espn_ncaa():
             elif 'negative' in rank_class:
                 week_rank_chg = '- ' + week_rank_chg
             # print(week_rank_chg)
-            if action_type == 1:
-                new_espn_ncaab = ESPNNCAAB(team_name, team_name_temple, ranking, conf, w_l, bpi_off, bpi_def,
-                                           week_rank_chg,
-                                           date)
-                session.add(new_espn_ncaab)
-            elif action_type == 2:
+            # if action_type == 1:
+            #     new_espn_ncaab = ESPNNCAAB(team_name, team_name_temple, ranking, conf, w_l, bpi_off, bpi_def,
+            #                                week_rank_chg,
+            #                                date)
+            #     session.add(new_espn_ncaab)
+            if action_type == 2:
                 team1_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
                                     team_name.replace("'", " ") + '", SUBSTITUTE({' + \
                                     ncaa_team_info[1] + '}, "\'", " ")="' + \
@@ -80,14 +80,14 @@ def add_espn_ncaa():
 
 print("Start ESPN work")
 action_type = 2
-if action_type == 1:
-    recreate_espn_table()
-    add_espn_ncaa()
-
-    session.commit()
-    browser.close()
-    close_connection()
-else:
-    add_espn_ncaa()
-    browser.close()
+# if action_type == 1:
+#     recreate_espn_table()
+#     add_espn_ncaa()
+#
+#     session.commit()
+#     browser.close()
+#     close_connection()
+# else:
+add_espn_ncaa()
+browser.close()
 print("Finished ESPN work")

@@ -2,9 +2,9 @@ from selenium import webdriver
 from models.computer_pick_models import ComputerPickDetailsNCAAB
 from models.computer_pick_models import ComputerPickDetailsNBA
 import datetime
-from database import session
-from database import recreate_oddshark_table
-from database import close_connection
+# from database import session
+# from database import recreate_oddshark_table
+# from database import close_connection
 import pandas as pd
 from airtable_init import airtable_ncaab
 from airtable_init import airtable_nba
@@ -18,13 +18,13 @@ from airtable_init import ncaa_team_info
 from airtable_init import nba_team_info
 from airtable_init import game_date_info
 from airtable_init import game_time_info
-import google_spread_sheet
-from google_spread_sheet import get_work_sheet
+# import google_spread_sheet
+# from google_spread_sheet import get_work_sheet
 
 browser = webdriver.Chrome('chromedriver.exe')
 browser.maximize_window()
-wks_nba = get_work_sheet('OddShark_NBA')
-wks_ncaab = get_work_sheet('OddShark_NCAAB')
+# wks_nba = get_work_sheet('OddShark_NBA')
+# wks_ncaab = get_work_sheet('OddShark_NCAAB')
 
 
 def add_oddshark_ncaab():
@@ -63,15 +63,15 @@ def add_oddshark_ncaab():
                                      computer_pick_tds[2].text, public_consensus_tds[1].text,
                                      public_consensus_tds[2].text, consensus_bet_tds[1].text,
                                      consensus_bet_tds[2].text))
-            if action_type <= 1:  # store to db
-                new_computer_detail = ComputerPickDetailsNCAAB(total_sheet_data[-1][0], total_sheet_data[-1][1],
-                                                               total_sheet_data[-1][2], total_sheet_data[-1][3],
-                                                               total_sheet_data[-1][4], total_sheet_data[-1][5],
-                                                               total_sheet_data[-1][6], total_sheet_data[-1][7],
-                                                               total_sheet_data[-1][8], total_sheet_data[-1][9],
-                                                               total_sheet_data[-1][10], total_sheet_data[-1][11],
-                                                               total_sheet_data[-1][12])
-                session.add(new_computer_detail)
+            # if action_type <= 1:  # store to db
+            #     new_computer_detail = ComputerPickDetailsNCAAB(total_sheet_data[-1][0], total_sheet_data[-1][1],
+            #                                                    total_sheet_data[-1][2], total_sheet_data[-1][3],
+            #                                                    total_sheet_data[-1][4], total_sheet_data[-1][5],
+            #                                                    total_sheet_data[-1][6], total_sheet_data[-1][7],
+            #                                                    total_sheet_data[-1][8], total_sheet_data[-1][9],
+            #                                                    total_sheet_data[-1][10], total_sheet_data[-1][11],
+            #                                                    total_sheet_data[-1][12])
+            #     session.add(new_computer_detail)
 
             if action_type == 0 | action_type == 3:  # store to airtable
                 ncaa_first_team = airtable_ncaa_team.match(ncaa_team_info[0], first_team_name_short)
@@ -115,9 +115,9 @@ def add_oddshark_ncaab():
                                            oddshark_ncaa_info[9]: public_consensus_tds[2].text,
                                            oddshark_ncaa_info[10]: consensus_bet_tds[1].text,
                                            oddshark_ncaa_info[11]: consensus_bet_tds[2].text})
-    if action_type == 0 | action_type == 2:  # store to gsheet
-        df = pd.DataFrame(total_sheet_data, columns=ComputerPickDetailsNCAAB.table_columns)
-        wks_ncaab.set_dataframe(df, (1, 1))
+    # if action_type == 0 | action_type == 2:  # store to gsheet
+    #     df = pd.DataFrame(total_sheet_data, columns=ComputerPickDetailsNCAAB.table_columns)
+    #     wks_ncaab.set_dataframe(df, (1, 1))
 
 
 def add_oddshark_nba():
@@ -156,15 +156,15 @@ def add_oddshark_nba():
                                      computer_pick_tds[2].text, public_consensus_tds[1].text,
                                      public_consensus_tds[2].text, consensus_bet_tds[1].text,
                                      consensus_bet_tds[2].text))
-            if action_type <= 1:  # store to db
-                new_computer_detail = ComputerPickDetailsNBA(total_sheet_data[-1][0], total_sheet_data[-1][1],
-                                                             total_sheet_data[-1][2], total_sheet_data[-1][3],
-                                                             total_sheet_data[-1][4], total_sheet_data[-1][5],
-                                                             total_sheet_data[-1][6], total_sheet_data[-1][7],
-                                                             total_sheet_data[-1][8], total_sheet_data[-1][9],
-                                                             total_sheet_data[-1][10], total_sheet_data[-1][11],
-                                                             total_sheet_data[-1][12])
-                session.add(new_computer_detail)
+            # if action_type <= 1:  # store to db
+            #     new_computer_detail = ComputerPickDetailsNBA(total_sheet_data[-1][0], total_sheet_data[-1][1],
+            #                                                  total_sheet_data[-1][2], total_sheet_data[-1][3],
+            #                                                  total_sheet_data[-1][4], total_sheet_data[-1][5],
+            #                                                  total_sheet_data[-1][6], total_sheet_data[-1][7],
+            #                                                  total_sheet_data[-1][8], total_sheet_data[-1][9],
+            #                                                  total_sheet_data[-1][10], total_sheet_data[-1][11],
+            #                                                  total_sheet_data[-1][12])
+            #     session.add(new_computer_detail)
             if action_type == 0 | action_type == 3:  # store to airtable
                 nba_first_team = airtable_nba_team.match(nba_team_info[0], first_team_name_short)
                 nba_second_team = airtable_nba_team.match(nba_team_info[0], second_team_name_short)
@@ -207,27 +207,27 @@ def add_oddshark_nba():
                                          oddshark_nba_info[9]: public_consensus_tds[2].text,
                                          oddshark_nba_info[10]: consensus_bet_tds[1].text,
                                          oddshark_nba_info[11]: consensus_bet_tds[2].text})
-    if action_type == 0 | action_type == 2:  # store to gsheet
-        df = pd.DataFrame(total_sheet_data, columns=ComputerPickDetailsNBA.table_columns)
-        wks_nba.set_dataframe(df, (1, 1))
+    # if action_type == 0 | action_type == 2:  # store to gsheet
+    #     df = pd.DataFrame(total_sheet_data, columns=ComputerPickDetailsNBA.table_columns)
+    #     wks_nba.set_dataframe(df, (1, 1))
 
 
 action_type = 3
 print("Start Oddshark work")
-if action_type == 0:
-    recreate_oddshark_table()
-    print("Oddshark-NBA work")
-    add_oddshark_nba()
-    print("Oddshark-NCAA work")
-    add_oddshark_ncaab()
-    session.commit()
-    browser.close()
-    close_connection()
-else:
-    print("Oddshark-NBA work")
-    add_oddshark_nba()
-    print("Oddshark-NCAA work")
-    add_oddshark_ncaab()
-    browser.close()
+# if action_type == 0:
+#     recreate_oddshark_table()
+#     print("Oddshark-NBA work")
+#     add_oddshark_nba()
+#     print("Oddshark-NCAA work")
+#     add_oddshark_ncaab()
+#     session.commit()
+#     browser.close()
+#     close_connection()
+# else:
+print("Oddshark-NBA work")
+add_oddshark_nba()
+print("Oddshark-NCAA work")
+add_oddshark_ncaab()
+browser.close()
 print("Finished Oddshark work")
 # exit()

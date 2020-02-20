@@ -1,8 +1,8 @@
 from selenium import webdriver
 from models.hasla_metrics_model import TeamScoreHASLAMETRICS
-from database import session
-from database import recreate_hasla_metrics_table
-from database import close_connection
+# from database import session
+# from database import recreate_hasla_metrics_table
+# from database import close_connection
 import datetime
 import pandas as pd
 from airtable_init import airtable_ncaa_team
@@ -11,10 +11,10 @@ from airtable_init import airtable_game_date
 from airtable_init import ncaa_team_info
 from airtable_init import hasla_metrics_info
 from airtable_init import game_date_info
-import google_spread_sheet
-from google_spread_sheet import get_work_sheet
-
-wks = get_work_sheet('HaslaMetrics')
+# import google_spread_sheet
+# from google_spread_sheet import get_work_sheet
+#
+# wks = get_work_sheet('HaslaMetrics')
 
 browser = webdriver.Chrome('chromedriver.exe')
 browser.maximize_window()
@@ -109,9 +109,9 @@ def add_team_score():
                                                       hasla_metrics_info[2]: [game_date['id']],
                                                       hasla_metrics_info[3]: score1,
                                                       hasla_metrics_info[4]: score2})
-            if action_type == 1:
-                session.add_all(new_team_scores)
-                session.flush()
+            # if action_type == 1:
+            #     session.add_all(new_team_scores)
+            #     session.flush()
             new_team_scores = [TeamScoreHASLAMETRICS(), TeamScoreHASLAMETRICS(), TeamScoreHASLAMETRICS(),
                                TeamScoreHASLAMETRICS()]
             new_team_scores[0].date = date
@@ -119,20 +119,20 @@ def add_team_score():
             new_team_scores[2].date = date
             new_team_scores[3].date = date
 
-    if action_type == 2:
-        df = pd.DataFrame(total_sheet_data, columns=TeamScoreHASLAMETRICS.table_columns)
-        wks.set_dataframe(df, (1, 1))
+    # if action_type == 2:
+    #     df = pd.DataFrame(total_sheet_data, columns=TeamScoreHASLAMETRICS.table_columns)
+    #     wks.set_dataframe(df, (1, 1))
 
 
 print("Start HaslaMetrics work")
 action_type = 3
-if action_type == 0:
-    recreate_hasla_metrics_table()
-    add_team_score()
-    session.commit()
-    browser.close()
-    close_connection()
-else:
-    add_team_score()
-    browser.close()
+# if action_type == 0:
+#     recreate_hasla_metrics_table()
+#     add_team_score()
+#     session.commit()
+#     browser.close()
+#     close_connection()
+# else:
+add_team_score()
+browser.close()
 print("Finished HaslaMetrics work")

@@ -2,13 +2,13 @@ import datetime
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoSuchElementException
-from models.curated_picks_model import CuratedPicksNCAAB
-from models.curated_picks_model import CuratedPicksNBA
-from models.curated_picks_model import CuratedPicksWiseNBA
-from models.curated_picks_model import CuratedPicksWiseNCAAB
-from database import session
-from database import recreate_curated_picks_table
-from database import close_connection
+# from models.curated_picks_model import CuratedPicksNCAAB
+# from models.curated_picks_model import CuratedPicksNBA
+# from models.curated_picks_model import CuratedPicksWiseNBA
+# from models.curated_picks_model import CuratedPicksWiseNCAAB
+# from database import session
+# from database import recreate_curated_picks_table
+# from database import close_connection
 import time
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_nba_team
@@ -54,11 +54,11 @@ def add_curated_picks_ncaab():
         ATS = td_list[3].find_element_by_class_name('picks-block-in').text.strip()
         total = td_list[4].find_element_by_class_name('picks-block-in').text.strip()
         money_line_value = td_list[5].find_element_by_class_name('picks-block-in').text.strip()
-        if action_type == 1:
-            new_curated_picks_ncabb = CuratedPicksNCAAB(team_list[0], rot_list[0], team_list[1], rot_list[1],
-                                                        game_winner, ATS, total, money_line_value, date)
-            session.add(new_curated_picks_ncabb)
-        elif action_type == 2:
+        # if action_type == 1:
+        #     new_curated_picks_ncabb = CuratedPicksNCAAB(team_list[0], rot_list[0], team_list[1], rot_list[1],
+        #                                                 game_winner, ATS, total, money_line_value, date)
+        #     session.add(new_curated_picks_ncabb)
+        if action_type == 2:
             team1_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
                                 team_list[0].replace("'", " ") + '", SUBSTITUTE({' + \
                                 ncaa_team_info[1] + '}, "\'", " ")="' + \
@@ -122,11 +122,11 @@ def add_curated_picks_nba():
         ATS = td_list[3].find_element_by_class_name('picks-block-in').text.strip()
         total = td_list[4].find_element_by_class_name('picks-block-in').text.strip()
         money_line_value = td_list[5].find_element_by_class_name('picks-block-in').text.strip()
-        if action_type == 1:
-            new_curated_picks_nba = CuratedPicksNBA(team_list[0], rot_list[0], team_list[1], rot_list[1], game_winner,
-                                                    ATS, total, money_line_value, date)
-            session.add(new_curated_picks_nba)
-        elif action_type == 2:
+        # if action_type == 1:
+        #     new_curated_picks_nba = CuratedPicksNBA(team_list[0], rot_list[0], team_list[1], rot_list[1], game_winner,
+        #                                             ATS, total, money_line_value, date)
+        #     session.add(new_curated_picks_nba)
+        if action_type == 2:
             team1_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
                                 team_list[0].replace("'", " ") + '", SUBSTITUTE({' + \
                                 nba_team_info[1] + '}, "\'", " ")="' + \
@@ -205,14 +205,14 @@ def add_curated_picks_wise_nba():
             second_team_prediction = pick_list[1].find_element_by_css_selector(
                 '.Button.Button--border-red').get_attribute(
                 'innerHTML')
-            if action_type == 1:
-                new_curated_picks_wise_nba = CuratedPicksWiseNBA(first_team_name, first_team_prediction,
-                                                                 first_team_pick_outcome, first_team_pick_market,
-                                                                 second_team_name, second_team_prediction,
-                                                                 second_team_pick_outcome, second_team_pick_market,
-                                                                 date)
-                session.add(new_curated_picks_wise_nba)
-            elif action_type == 2:
+            # if action_type == 1:
+            #     new_curated_picks_wise_nba = CuratedPicksWiseNBA(first_team_name, first_team_prediction,
+            #                                                      first_team_pick_outcome, first_team_pick_market,
+            #                                                      second_team_name, second_team_prediction,
+            #                                                      second_team_pick_outcome, second_team_pick_market,
+            #                                                      date)
+            #     session.add(new_curated_picks_wise_nba)
+            if action_type == 2:
                 team1_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
                                     first_team_name.replace("'", " ") + '", SUBSTITUTE({' + \
                                     nba_team_info[1] + '}, "\'", " ")="' + \
@@ -298,14 +298,14 @@ def add_curated_picks_wise_ncaab():
             second_team_prediction = pick_list[1].find_element_by_css_selector(
                 '.Button.Button--border-red').get_attribute(
                 'innerHTML')
-            if action_type == 1:
-                new_curated_picks_wise_ncaab = CuratedPicksWiseNCAAB(first_team_name, first_team_prediction,
-                                                                     first_team_pick_outcome, first_team_pick_market,
-                                                                     second_team_name, second_team_prediction,
-                                                                     second_team_pick_outcome, second_team_pick_market,
-                                                                     date)
-                session.add(new_curated_picks_wise_ncaab)
-            elif action_type == 2:
+            # if action_type == 1:
+            #     new_curated_picks_wise_ncaab = CuratedPicksWiseNCAAB(first_team_name, first_team_prediction,
+            #                                                          first_team_pick_outcome, first_team_pick_market,
+            #                                                          second_team_name, second_team_prediction,
+            #                                                          second_team_pick_outcome, second_team_pick_market,
+            #                                                          date)
+            #     session.add(new_curated_picks_wise_ncaab)
+            if action_type == 2:
                 team1_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
                                     first_team_name.replace("'", " ") + '", SUBSTITUTE({' + \
                                     ncaa_team_info[1] + '}, "\'", " ")="' + \
@@ -355,23 +355,23 @@ def add_curated_picks_wise_ncaab():
 
 print("Start Curated picks work")
 action_type = 2
-if action_type == 1:
-    recreate_curated_picks_table()
-    add_curated_picks_ncaab()
-    add_curated_picks_nba()
-    print("Finished TeamRanking work")
-    add_curated_picks_wise_ncaab()
-    add_curated_picks_wise_nba()
+# if action_type == 1:
+#     recreate_curated_picks_table()
+#     add_curated_picks_ncaab()
+#     add_curated_picks_nba()
+#     print("Finished TeamRanking work")
+#     add_curated_picks_wise_ncaab()
+#     add_curated_picks_wise_nba()
+#
+#     session.commit()
+#     browser.close()
+#     close_connection()
+# else:
+add_curated_picks_ncaab()
+add_curated_picks_nba()
+# print("Finished TeamRanking work")
+# add_curated_picks_wise_ncaab()
+# add_curated_picks_wise_nba()
 
-    session.commit()
-    browser.close()
-    close_connection()
-else:
-    add_curated_picks_ncaab()
-    add_curated_picks_nba()
-    # print("Finished TeamRanking work")
-    # add_curated_picks_wise_ncaab()
-    # add_curated_picks_wise_nba()
-
-    browser.close()
+browser.close()
 print("Finished PickWise work")
