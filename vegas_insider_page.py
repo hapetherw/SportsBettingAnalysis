@@ -1,4 +1,3 @@
-from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 # from models.vegas_insider_model import VegasInsider
 # from database import session
@@ -10,8 +9,7 @@ from airtable_init import airtable_season
 from airtable_init import ncaa_team_info
 from airtable_init import vegasinsider_ncaa_info
 from airtable_init import season_info
-
-browser = webdriver.Chrome('chromedriver.exe')
+from selenimum_config import browser
 browser.maximize_window()
 
 

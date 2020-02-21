@@ -1,4 +1,3 @@
-from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
@@ -8,9 +7,9 @@ from models.sportsinsights_model import SportsInsightsBESTBETS
 from database import session
 from database import recreate_sportsinsights_table
 from database import close_connection
+from selenimum_config import browser
 import time
 
-browser = webdriver.Chrome('chromedriver.exe')
 browser.maximize_window()
 email = 'shanehvizdzak@gmail.com'
 password = 'bigboy4!'

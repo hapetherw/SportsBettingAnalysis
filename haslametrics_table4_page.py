@@ -1,4 +1,3 @@
-from selenium import webdriver
 from models.hasla_metrics_model import TeamScoreHASLAMETRICS
 # from database import session
 # from database import recreate_hasla_metrics_table
@@ -11,12 +10,12 @@ from airtable_init import airtable_game_date
 from airtable_init import ncaa_team_info
 from airtable_init import hasla_metrics_info
 from airtable_init import game_date_info
+from selenimum_config import browser
 # import google_spread_sheet
 # from google_spread_sheet import get_work_sheet
 #
 # wks = get_work_sheet('HaslaMetrics')
 
-browser = webdriver.Chrome('chromedriver.exe')
 browser.maximize_window()
 browser.get('http://haslametrics.com/ratings.php')
 

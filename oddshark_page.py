@@ -1,6 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
 from models.computer_pick_models import ComputerPickDetailsNCAAB
 from models.computer_pick_models import ComputerPickDetailsNBA
 import datetime
@@ -20,21 +17,10 @@ from airtable_init import ncaa_team_info
 from airtable_init import nba_team_info
 from airtable_init import game_date_info
 from airtable_init import game_time_info
-from config import SERVER_ENVIRONMENT
+from selenimum_config import browser
 # import google_spread_sheet
 # from google_spread_sheet import get_work_sheet
 
-if SERVER_ENVIRONMENT:
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.binary_location = '/usr/bin/google-chrome'
-
-    chrome_driver = '/usr/bin/chromedriver'
-    browser = webdriver.Chrome(executable_path=chrome_driver, options=chrome_options)
-else:
-    browser = webdriver.Chrome('chromedriver.exe')
 browser.maximize_window()
 # wks_nba = get_work_sheet('OddShark_NBA')
 # wks_ncaab = get_work_sheet('OddShark_NCAAB')
