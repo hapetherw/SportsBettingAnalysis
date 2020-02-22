@@ -367,9 +367,9 @@ action_type = 2
 # else:
 add_curated_picks_ncaab()
 add_curated_picks_nba()
-# print("Finished TeamRanking work")
-# add_curated_picks_wise_ncaab()
-# add_curated_picks_wise_nba()
+print("Finished TeamRanking work")
+add_curated_picks_wise_ncaab()
+add_curated_picks_wise_nba()
 
 browser.close()
 print("Finished PickWise work")
