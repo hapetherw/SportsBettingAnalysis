@@ -10,7 +10,8 @@ from airtable_init import airtable_season
 from airtable_init import ncaa_team_info
 from airtable_init import vegasinsider_ncaa_info
 from airtable_init import season_info
-from selenimum_config import browser
+from selenimum_config import get_browser
+browser = get_browser()
 browser.maximize_window()
 
 

@@ -10,12 +10,12 @@ from airtable_init import airtable_game_date
 from airtable_init import ncaa_team_info
 from airtable_init import hasla_metrics_info
 from airtable_init import game_date_info
-from selenimum_config import browser
+from selenimum_config import get_browser
 # import google_spread_sheet
 # from google_spread_sheet import get_work_sheet
 #
 # wks = get_work_sheet('HaslaMetrics')
-
+browser = get_browser()
 browser.maximize_window()
 browser.get('http://haslametrics.com/ratings.php')
 

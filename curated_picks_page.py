@@ -25,7 +25,8 @@ from airtable_init import pickwise_ncaa_info
 from airtable_init import pickwise_nba_info
 from airtable_init import game_date_info
 from airtable_init import game_time_info
-from selenimum_config import browser
+from selenimum_config import get_browser
+browser = get_browser()
 browser.maximize_window()
 
 

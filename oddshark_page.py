@@ -17,10 +17,10 @@ from airtable_init import ncaa_team_info
 from airtable_init import nba_team_info
 from airtable_init import game_date_info
 from airtable_init import game_time_info
-from selenimum_config import browser
+from selenimum_config import get_browser
 # import google_spread_sheet
 # from google_spread_sheet import get_work_sheet
-
+browser = get_browser()
 browser.maximize_window()
 # wks_nba = get_work_sheet('OddShark_NBA')
 # wks_ncaab = get_work_sheet('OddShark_NCAAB')
