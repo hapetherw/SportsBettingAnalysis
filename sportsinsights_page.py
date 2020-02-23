@@ -9,6 +9,7 @@ from database import recreate_sportsinsights_table
 from database import close_connection
 from selenimum_config import browser
 import time
+from datetime import datetime
 
 browser.maximize_window()
 email = 'shanehvizdzak@gmail.com'

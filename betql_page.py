@@ -399,7 +399,7 @@ def betql_work(is_nba):
                 airtable_betql_ncaa.insert(fields)
 
 
-print("Betql-NCAA work")
+print(datetime.now().isoformat(), "Betql-NCAA work")
 betql_work(0)
 print("Betql-NBA work")
 betql_work(1)

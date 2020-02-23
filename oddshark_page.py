@@ -212,7 +212,7 @@ def add_oddshark_nba():
 
 
 action_type = 3
-print("Start Oddshark work")
+print(datetime.datetime.now().isoformat(), "Start Oddshark work")
 # if action_type == 0:
 #     recreate_oddshark_table()
 #     print("Oddshark-NBA work")

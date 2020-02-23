@@ -2,6 +2,7 @@
 # from database import session
 # from database import recreate_espn_table
 # from database import close_connection
+from datetime import datetime
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_espn_ncaa
 from airtable_init import airtable_season
@@ -76,7 +77,7 @@ def add_espn_ncaa():
                                                espn_ncaa_info[7]: week_rank_chg})
 
 
-print("Start ESPN work")
+print(datetime.now().isoformat(), "Start ESPN work")
 action_type = 2
 # if action_type == 1:
 #     recreate_espn_table()

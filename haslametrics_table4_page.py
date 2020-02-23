@@ -123,7 +123,7 @@ def add_team_score():
     #     wks.set_dataframe(df, (1, 1))
 
 
-print("Start HaslaMetrics work")
+print(datetime.datetime.now().isoformat(), "Start HaslaMetrics work")
 action_type = 3
 # if action_type == 0:
 #     recreate_hasla_metrics_table()

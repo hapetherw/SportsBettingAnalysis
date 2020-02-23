@@ -351,7 +351,7 @@ def add_curated_picks_wise_ncaab():
             continue
 
 
-print("Start Curated picks work")
+print(datetime.datetime.now().isoformat(), "Start Curated picks work")
 action_type = 2
 # if action_type == 1:
 #     recreate_curated_picks_table()

@@ -3,6 +3,7 @@ from selenium.common.exceptions import NoSuchElementException
 # from database import session
 # from database import recreate_vegas_insider_table
 # from database import close_connection
+from datetime import datetime
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_vegasinsider_ncaa
 from airtable_init import airtable_season
@@ -85,7 +86,7 @@ def add_vegas_insider():
                                                    vegasinsider_ncaa_info[24]: int(td_list[23].text)})
 
 
-print("Start VegasInsider work")
+print(datetime.now().isoformat(), "Start VegasInsider work")
 action_type = 2
 # if action_type == 1:
 #     recreate_vegas_insider_table()
