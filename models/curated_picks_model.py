@@ -4,139 +4,153 @@ from sqlalchemy import Column, Integer, String, DateTime
 from models.model import Base
 
 
-class CuratedPicksNCAAB(Base):
-    __tablename__ = 'CuratedPicksNCAAB'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    firstTeamName = Column(String, nullable=True)
-    firstTeamRot = Column(String, nullable=True)
-    secondTeamName = Column(String, nullable=True)
-    secondTeamRot = Column(String, nullable=True)
-    gameWinner = Column(String, nullable=True)
+class TeamRankingNCAA(Base):
+    __tablename__ = 'TeamRankingNCAA'
+    gsheet_table_columns = ['Team1ShortName', 'Team1FullName', 'Team2ShortName', 'Team2FullName', 'Team1Rot',
+                            'Team2Rot', 'GameWinner', 'ATS', 'Total', 'MoneyLineValue', 'Date']
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Team1ID = Column(Integer, nullable=True)
+    Team1Rot = Column(Integer, nullable=True)
+    Team2ID = Column(Integer, nullable=True)
+    Team2Rot = Column(Integer, nullable=True)
+    GameWinner = Column(String, nullable=True)
     ATS = Column(String, nullable=True)
-    total = Column(String, nullable=True)
-    moneyLineValue = Column(String, nullable=True)
-    date = Column(String, nullable=True)
-    createdDate = Column(DateTime, default=datetime.datetime.now())
+    Total = Column(String, nullable=True)
+    MoneyLineValue = Column(String, nullable=True)
+    Date = Column(String, nullable=True)
+    CreatedDate = Column(DateTime, default=datetime.datetime.now())
 
-    def __init__(self, first_team_name='', first_team_rot='', second_team_name='', second_team_rot='', game_winner='',
+    def __init__(self, team1_id, team1_rot, team2_id, team2_rot, game_winner='',
                  ats='', total='', money_line_value='', date=''):
-        self.firstTeamName = first_team_name
-        self.firstTeamRot = first_team_rot
-        self.secondTeamName = second_team_name
-        self.secondTeamRot = second_team_rot
-        self.gameWinner = game_winner
+        self.Team1ID = team1_id
+        self.Team1Rot = team1_rot
+        self.Team2ID = team2_id
+        self.Team2Rot = team2_rot
+        self.GameWinner = game_winner
         self.ATS = ats
-        self.total = total
-        self.moneyLineValue = money_line_value
-        self.date = date
+        self.Total = total
+        self.MoneyLineValue = money_line_value
+        self.Date = date
 
     def __repr__(self):
-        return "<CuratedPicksNCAAB(firstTeamName='{}', firstTeamRot='{}', secondTeamName={}, " \
-               "secondTeamRot={}, gameWinner={}, ATS={}, total={}, moneyLineValue={}, date={}, createdDate={})>" \
-            .format(self.firstTeamName, self.firstTeamRot, self.secondTeamName, self.secondTeamRot,
-                    self.gameWinner, self.ATS, self.total, self.moneyLineValue, self.date, self.createdDate)
+        return "<TeamRankingNCAA(Team1ID='{}', Team1Rot='{}', Team2ID={}, " \
+               "Team2Rot={}, GameWinner={}, ATS={}, Total={}, MoneyLineValue={}, Date={}, CreatedDate={})>" \
+            .format(self.Team1ID, self.Team1Rot, self.Team2ID, self.Team2Rot,
+                    self.GameWinner, self.ATS, self.Total, self.MoneyLineValue, self.Date, self.CreatedDate)
 
 
-class CuratedPicksNBA(Base):
-    __tablename__ = 'CuratedPicksNBA'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    firstTeamName = Column(String, nullable=True)
-    firstTeamRot = Column(String, nullable=True)
-    secondTeamName = Column(String, nullable=True)
-    secondTeamRot = Column(String, nullable=True)
-    gameWinner = Column(String, nullable=True)
+class TeamRankingNBA(Base):
+    __tablename__ = 'TeamRankingNBA'
+    gsheet_table_columns = ['Team1ShortName', 'Team1FullName', 'Team2ShortName', 'Team2FullName', 'Team1Rot',
+                            'Team2Rot', 'GameWinner', 'ATS', 'Total', 'MoneyLineValue', 'Date']
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Team1ID = Column(Integer, nullable=True)
+    Team1Rot = Column(Integer, nullable=True)
+    Team2ID = Column(Integer, nullable=True)
+    Team2Rot = Column(Integer, nullable=True)
+    GameWinner = Column(String, nullable=True)
     ATS = Column(String, nullable=True)
-    total = Column(String, nullable=True)
-    moneyLineValue = Column(String, nullable=True)
-    date = Column(String, nullable=True)
-    createdDate = Column(DateTime, default=datetime.datetime.now())
+    Total = Column(String, nullable=True)
+    MoneyLineValue = Column(String, nullable=True)
+    Date = Column(String, nullable=True)
+    CreatedDate = Column(DateTime, default=datetime.datetime.now())
 
-    def __init__(self, first_team_name='', first_team_rot='', second_team_name='', second_team_rot='', game_winner='',
+    def __init__(self, team1_id, team1_rot, team2_id, team2_rot, game_winner='',
                  ats='', total='', money_line_value='', date=''):
-        self.firstTeamName = first_team_name
-        self.firstTeamRot = first_team_rot
-        self.secondTeamName = second_team_name
-        self.secondTeamRot = second_team_rot
-        self.gameWinner = game_winner
+        self.Team1ID = team1_id
+        self.Team1Rot = team1_rot
+        self.Team2ID = team2_id
+        self.Team2Rot = team2_rot
+        self.GameWinner = game_winner
         self.ATS = ats
-        self.total = total
-        self.moneyLineValue = money_line_value
-        self.date = date
+        self.Total = total
+        self.MoneyLineValue = money_line_value
+        self.Date = date
 
     def __repr__(self):
-        return "<CuratedPicksNBA(firstTeamName='{}', firstTeamRot='{}', secondTeamName={}, " \
-               "secondTeamRot={}, gameWinner={}, ATS={}, total={}, moneyLineValue={}, date={}, createdDate={})>" \
-            .format(self.firstTeamName, self.firstTeamRot, self.secondTeamName, self.secondTeamRot,
-                    self.gameWinner, self.ATS, self.total, self.moneyLineValue, self.date, self.createdDate)
+        return "<TeamRankingNBA(Team1ID='{}', Team1Rot='{}', Team2ID={}, " \
+               "Team2Rot={}, GameWinner={}, ATS={}, Total={}, MoneyLineValue={}, Date={}, CreatedDate={})>" \
+            .format(self.Team1ID, self.Team1Rot, self.Team2ID, self.Team2Rot,
+                    self.GameWinner, self.ATS, self.Total, self.MoneyLineValue, self.Date, self.CreatedDate)
 
 
-class CuratedPicksWiseNBA(Base):
-    __tablename__ = 'CuratedPicksWiseNBA'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    firstTeamName = Column(String, nullable=True)
-    firstTeamPrediction = Column(String, nullable=True)
-    firstTeamPickOutcome = Column(String, nullable=True)
-    firstTeamPickMarket = Column(String, nullable=True)
-    secondTeamName = Column(String, nullable=True)
-    secondTeamPrediction = Column(String, nullable=True)
-    secondTeamPickOutcome = Column(String, nullable=True)
-    secondTeamPickMarket = Column(String, nullable=True)
-    date = Column(String, nullable=True)
-    createdDate = Column(DateTime, default=datetime.datetime.now())
+class PicksWiseNBA(Base):
+    __tablename__ = 'PicksWiseNBA'
+    gsheet_table_columns = ['Team1ShortName', 'Team1FullName', 'Team2ShortName', 'Team2FullName', 'Date', 'Time',
+                            'Team1Prediction', 'Team1PickOutcome', 'Team1PickMarket', 'Team2Prediction',
+                            'Team2PickOutcome', 'Team2PickMarket']
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Team1ID = Column(Integer, nullable=True)
+    Team2ID = Column(Integer, nullable=True)
+    Team1Prediction = Column(String, nullable=True)
+    Team1PickOutcome = Column(String, nullable=True)
+    Team1PickMarket = Column(String, nullable=True)
+    Team2Prediction = Column(String, nullable=True)
+    Team2PickOutcome = Column(String, nullable=True)
+    Team2PickMarket = Column(String, nullable=True)
+    Date = Column(String, nullable=True)
+    Time = Column(String, nullable=True)
+    CreatedDate = Column(DateTime, default=datetime.datetime.now())
 
-    def __init__(self, first_team_name='', first_team_prediction='', first_team_pick_outcome='',
-                 first_team_pick_market='', second_team_name='', second_team_prediction='', second_team_pick_outcome='',
-                 second_team_pick_market='', date=''):
-        self.firstTeamName = first_team_name
-        self.firstTeamPrediction = first_team_prediction
-        self.firstTeamPickOutcome = first_team_pick_outcome
-        self.firstTeamPickMarket = first_team_pick_market
-        self.secondTeamName = second_team_name
-        self.secondTeamPrediction = second_team_prediction
-        self.secondTeamPickOutcome = second_team_pick_outcome
-        self.secondTeamPickMarket = second_team_pick_market
-        self.date = date
-
-    def __repr__(self):
-        return "<CuratedPicksWiseNBA(firstTeamName='{}', firstTeamPrediction='{}', firstTeamPickOutcome={}, " \
-               "firstTeamPickMarket={}, secondTeamName={}, secondTeamPrediction={}, secondTeamPickOutcome={}, " \
-               "secondTeamPickMarket={}, date={}, createdDate={})>" \
-            .format(self.firstTeamName, self.firstTeamPrediction, self.firstTeamPickOutcome, self.firstTeamPickMarket,
-                    self.secondTeamName, self.secondTeamPrediction, self.secondTeamPickOutcome,
-                    self.secondTeamPickMarket, self.date, self.createdDate)
-
-
-class CuratedPicksWiseNCAAB(Base):
-    __tablename__ = 'CuratedPicksWiseNCAAB'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    firstTeamName = Column(String, nullable=True)
-    firstTeamPrediction = Column(String, nullable=True)
-    firstTeamPickOutcome = Column(String, nullable=True)
-    firstTeamPickMarket = Column(String, nullable=True)
-    secondTeamName = Column(String, nullable=True)
-    secondTeamPrediction = Column(String, nullable=True)
-    secondTeamPickOutcome = Column(String, nullable=True)
-    secondTeamPickMarket = Column(String, nullable=True)
-    date = Column(String, nullable=True)
-    createdDate = Column(DateTime, default=datetime.datetime.now())
-
-    def __init__(self, first_team_name='', first_team_prediction='', first_team_pick_outcome='',
-                 first_team_pick_market='', second_team_name='', second_team_prediction='', second_team_pick_outcome='',
-                 second_team_pick_market='', date=''):
-        self.firstTeamName = first_team_name
-        self.firstTeamPrediction = first_team_prediction
-        self.firstTeamPickOutcome = first_team_pick_outcome
-        self.firstTeamPickMarket = first_team_pick_market
-        self.secondTeamName = second_team_name
-        self.secondTeamPrediction = second_team_prediction
-        self.secondTeamPickOutcome = second_team_pick_outcome
-        self.secondTeamPickMarket = second_team_pick_market
-        self.date = date
+    def __init__(self, team1_id, team2_id, team1_prediction='', team1_pick_outcome='',
+                 team1_pick_market='', team2_prediction='', team2_pick_outcome='',
+                 team2_pick_market='', date='', time=''):
+        self.Team1ID = team1_id
+        self.Team2ID = team2_id
+        self.Team1Prediction = team1_prediction
+        self.Team1PickOutcome = team1_pick_outcome
+        self.Team1PickMarket = team1_pick_market
+        self.Team2Prediction = team2_prediction
+        self.Team2PickOutcome = team2_pick_outcome
+        self.Team2PickMarket = team2_pick_market
+        self.Date = date
+        self.Time = time
 
     def __repr__(self):
-        return "<CuratedPicksWiseNCAAB(firstTeamName='{}', firstTeamPrediction='{}', firstTeamPickOutcome={}, " \
-               "firstTeamPickMarket={}, secondTeamName={}, secondTeamPrediction={}, secondTeamPickOutcome={}, " \
-               "secondTeamPickMarket={}, date={}, createdDate={})>" \
-            .format(self.firstTeamName, self.firstTeamPrediction, self.firstTeamPickOutcome, self.firstTeamPickMarket,
-                    self.secondTeamName, self.secondTeamPrediction, self.secondTeamPickOutcome,
-                    self.secondTeamPickMarket, self.date, self.createdDate)
+        return "<PicksWiseNBA(Team1ID='{}', Team2ID='{}', Team1Prediction={}, " \
+               "Team1PickOutcome={}, Team1PickMarket={}, Team2Prediction={}, Team2PickOutcome={}, " \
+               "Team2PickMarket={}, Date={}, Time={}, CreatedDate={})>" \
+            .format(self.Team1ID, self.Team2ID, self.Team1Prediction, self.Team1PickOutcome,
+                    self.Team1PickMarket, self.Team2Prediction, self.Team2PickOutcome,
+                    self.Team2PickMarket, self.Date, self.Time, self.CreatedDate)
+
+
+class PicksWiseNCAA(Base):
+    __tablename__ = 'PicksWiseNCAA'
+    gsheet_table_columns = ['Team1ShortName', 'Team1FullName', 'Team2ShortName', 'Team2FullName', 'Date', 'Time',
+                            'Team1Prediction', 'Team1PickOutcome', 'Team1PickMarket', 'Team2Prediction',
+                            'Team2PickOutcome', 'Team2PickMarket']
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Team1ID = Column(Integer, nullable=True)
+    Team2ID = Column(Integer, nullable=True)
+    Team1Prediction = Column(String, nullable=True)
+    Team1PickOutcome = Column(String, nullable=True)
+    Team1PickMarket = Column(String, nullable=True)
+    Team2Prediction = Column(String, nullable=True)
+    Team2PickOutcome = Column(String, nullable=True)
+    Team2PickMarket = Column(String, nullable=True)
+    Date = Column(String, nullable=True)
+    Time = Column(String, nullable=True)
+    CreatedDate = Column(DateTime, default=datetime.datetime.now())
+
+    def __init__(self, team1_id, team2_id, team1_prediction='', team1_pick_outcome='',
+                 team1_pick_market='', team2_prediction='', team2_pick_outcome='',
+                 team2_pick_market='', date='', time=''):
+        self.Team1ID = team1_id
+        self.Team2ID = team2_id
+        self.Team1Prediction = team1_prediction
+        self.Team1PickOutcome = team1_pick_outcome
+        self.Team1PickMarket = team1_pick_market
+        self.Team2Prediction = team2_prediction
+        self.Team2PickOutcome = team2_pick_outcome
+        self.Team2PickMarket = team2_pick_market
+        self.Date = date
+        self.Time = time
+
+    def __repr__(self):
+        return "<PicksWiseNCAA(Team1ID='{}', Team2ID='{}', Team1Prediction={}, " \
+               "Team1PickOutcome={}, Team1PickMarket={}, Team2Prediction={}, Team2PickOutcome={}, " \
+               "Team2PickMarket={}, Date={}, Time={}, CreatedDate={})>" \
+            .format(self.Team1ID, self.Team2ID, self.Team1Prediction, self.Team1PickOutcome,
+                    self.Team1PickMarket, self.Team2Prediction, self.Team2PickOutcome,
+                    self.Team2PickMarket, self.Date, self.Time, self.CreatedDate)

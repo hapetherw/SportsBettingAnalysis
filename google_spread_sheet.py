@@ -15,14 +15,10 @@ except SpreadsheetNotFound:
     sh.share(SHARE_EMAIL, role='writer', type='user')
 
 
-# sh.share('', role='writer', type='anyone')
-# print(sh)
-
 def get_work_sheet(sheet_name):
     try:
         wks = sh.worksheet_by_title(sheet_name)
     except WorksheetNotFound:
         wks = sh.add_worksheet(sheet_name)
         print("Add new worksheet- " + sheet_name)
-    wks.clear()
     return wks

@@ -2,13 +2,15 @@ from sqlalchemy.orm import sessionmaker
 
 import sqlalchemy as db
 from models.model import Base
-from models.computer_pick_models import ComputerPickDetailsNCAAB
-from models.computer_pick_models import ComputerPickDetailsNBA
-from models.hasla_metrics_model import TeamScoreHASLAMETRICS
-from models.curated_picks_model import CuratedPicksNCAAB
-from models.curated_picks_model import CuratedPicksNBA
-from models.curated_picks_model import CuratedPicksWiseNCAAB
-from models.curated_picks_model import CuratedPicksWiseNBA
+from models.team_models import NCAATeam
+from models.team_models import NBATeam
+from models.oddshark_models import OddSharkNCAA
+from models.oddshark_models import OddSharkNBA
+from models.hasla_metrics_model import HaslaMetrics
+from models.curated_picks_model import TeamRankingNCAA
+from models.curated_picks_model import TeamRankingNBA
+from models.curated_picks_model import PicksWiseNCAA
+from models.curated_picks_model import PicksWiseNBA
 from models.vegas_insider_model import VegasInsider
 from models.espn_model import ESPNNCAAB
 from models.betql_model import BetQLSpreadNCAAB
@@ -47,47 +49,60 @@ def recreate_database():
     print("Created All Tables")
 
 
-def recreate_oddshark_table():
-    Base.metadata.drop_all(engine, tables=[ComputerPickDetailsNBA.__table__, ComputerPickDetailsNCAAB.__table__])
-    Base.metadata.create_all(engine, tables=[ComputerPickDetailsNBA.__table__, ComputerPickDetailsNCAAB.__table__])
+def recreate_team_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[NCAATeam.__table__, NBATeam.__table__])
+    Base.metadata.create_all(engine, tables=[NCAATeam.__table__, NBATeam.__table__])
+    print("Created Team Tables")
+
+
+def recreate_oddshark_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[OddSharkNBA.__table__, OddSharkNCAA.__table__])
+    Base.metadata.create_all(engine, tables=[OddSharkNBA.__table__, OddSharkNCAA.__table__])
     print("Created OddShark Tables")
 
 
-def recreate_hasla_metrics_table():
-    Base.metadata.drop_all(engine, tables=[TeamScoreHASLAMETRICS.__table__])
-    Base.metadata.create_all(engine, tables=[TeamScoreHASLAMETRICS.__table__])
+def recreate_hasla_metrics_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[HaslaMetrics.__table__])
+    Base.metadata.create_all(engine, tables=[HaslaMetrics.__table__])
     print("Created hasla_metrics Tables")
 
 
-def recreate_curated_picks_table():
-    Base.metadata.drop_all(engine, tables=[CuratedPicksNCAAB.__table__, CuratedPicksNBA.__table__,
-                                           CuratedPicksWiseNCAAB.__table__, CuratedPicksWiseNBA.__table__])
-    Base.metadata.create_all(engine, tables=[CuratedPicksNCAAB.__table__, CuratedPicksNBA.__table__,
-                                             CuratedPicksWiseNCAAB.__table__, CuratedPicksWiseNBA.__table__])
+def recreate_curated_picks_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[TeamRankingNCAA.__table__, TeamRankingNBA.__table__,
+                                               PicksWiseNCAA.__table__, PicksWiseNBA.__table__])
+    Base.metadata.create_all(engine, tables=[TeamRankingNCAA.__table__, TeamRankingNBA.__table__,
+                                             PicksWiseNCAA.__table__, PicksWiseNBA.__table__])
     print("Created CuratedPicks Tables")
 
 
-def recreate_espn_table():
-    Base.metadata.drop_all(engine, tables=[ESPNNCAAB.__table__])
+def recreate_espn_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[ESPNNCAAB.__table__])
     Base.metadata.create_all(engine, tables=[ESPNNCAAB.__table__])
     print("Created ESPN Tables")
 
 
-def recreate_vegas_insider_table():
-    Base.metadata.drop_all(engine, tables=[VegasInsider.__table__])
+def recreate_vegas_insider_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[VegasInsider.__table__])
     Base.metadata.create_all(engine, tables=[VegasInsider.__table__])
     print("Created VegasInsider Tables")
 
 
-def recreate_betql_table():
-    Base.metadata.drop_all(engine, tables=[BetQLSpreadNCAAB.__table__, BetQLMoneylineNCAAB.__table__,
-                                           BetQLTotalNCAAB.__table__, BetQL1stHalfSpreadNCAAB.__table__,
-                                           BetQL1stHalfMoneylineNCAAB.__table__, BetQL1stHalfTotalNCAAB.__table__,
-                                           BetQL2ndHalfSpreadNCAAB.__table__, BetQL2ndHalfMoneylineNCAAB.__table__,
-                                           BetQLSpreadNBA.__table__, BetQLMoneylineNBA.__table__,
-                                           BetQLTotalNBA.__table__, BetQL1stHalfSpreadNBA.__table__,
-                                           BetQL1stHalfMoneylineNBA.__table__, BetQL1stHalfTotalNBA.__table__,
-                                           BetQL2ndHalfSpreadNBA.__table__, BetQL2ndHalfMoneylineNBA.__table__])
+def recreate_betql_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[BetQLSpreadNCAAB.__table__, BetQLMoneylineNCAAB.__table__,
+                                               BetQLTotalNCAAB.__table__, BetQL1stHalfSpreadNCAAB.__table__,
+                                               BetQL1stHalfMoneylineNCAAB.__table__, BetQL1stHalfTotalNCAAB.__table__,
+                                               BetQL2ndHalfSpreadNCAAB.__table__, BetQL2ndHalfMoneylineNCAAB.__table__,
+                                               BetQLSpreadNBA.__table__, BetQLMoneylineNBA.__table__,
+                                               BetQLTotalNBA.__table__, BetQL1stHalfSpreadNBA.__table__,
+                                               BetQL1stHalfMoneylineNBA.__table__, BetQL1stHalfTotalNBA.__table__,
+                                               BetQL2ndHalfSpreadNBA.__table__, BetQL2ndHalfMoneylineNBA.__table__])
     Base.metadata.create_all(engine, tables=[BetQLSpreadNCAAB.__table__, BetQLMoneylineNCAAB.__table__,
                                              BetQLTotalNCAAB.__table__, BetQL1stHalfSpreadNCAAB.__table__,
                                              BetQL1stHalfMoneylineNCAAB.__table__, BetQL1stHalfTotalNCAAB.__table__,
@@ -99,8 +114,9 @@ def recreate_betql_table():
     print("Created BetQL Tables")
 
 
-def recreate_sportsinsights_table():
-    Base.metadata.drop_all(engine, tables=[SportsInsightsBETSIGNALS.__table__, SportsInsightsBESTBETS.__table__])
+def recreate_sportsinsights_table(is_reset=0):
+    if is_reset:
+        Base.metadata.drop_all(engine, tables=[SportsInsightsBETSIGNALS.__table__, SportsInsightsBESTBETS.__table__])
     Base.metadata.create_all(engine, tables=[SportsInsightsBETSIGNALS.__table__, SportsInsightsBESTBETS.__table__])
     print("Created SportsInsights Tables")
 

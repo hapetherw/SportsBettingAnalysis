@@ -4,31 +4,35 @@ from sqlalchemy import Column, Integer, String, DateTime
 from models.model import Base
 
 
-class TeamScoreHASLAMETRICS(Base):
-    __tablename__ = 'TeamScoreHASLAMETRICS'
-    table_columns = ['FirstTeamName', 'FirstTeamScore', 'FirstTeamNumber', 'SecondTeamName', 'SecondTeamScore',
-                     'SecondTeamNumber', 'Date']
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    firstTeamName = Column(String, nullable=True)
-    firstTeamScore = Column(String, nullable=True)
-    firstTeamNumber = Column(String, nullable=True)
-    secondTeamName = Column(String, nullable=True)
-    secondTeamScore = Column(String, nullable=True)
-    secondTeamNumber = Column(String, nullable=True)
-    date = Column(String, nullable=True)
-    createdDate = Column(DateTime, default=datetime.datetime.now())
+class HaslaMetrics(Base):
+    __tablename__ = 'HaslaMetrics'
+    gsheet_table_columns = ['Team1ShortName', 'Team1FullName', 'Team2ShortName', 'Team2FullName', 'Date',
+                            'Team1Rank', 'Team2Rank', 'Team1Score', 'Team2Score']
+    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Team1ID = Column(Integer, nullable=True)
+    Team2ID = Column(Integer, nullable=True)
+    Team1Name = Column(String, nullable=True)
+    Team2Name = Column(String, nullable=True)
+    Team1Rank = Column(Integer, nullable=True)
+    Team2Rank = Column(Integer, nullable=True)
+    Team1Score = Column(String, nullable=True)
+    Team2Score = Column(String, nullable=True)
+    Date = Column(String, nullable=True)
+    CreatedDate = Column(DateTime, default=datetime.datetime.now())
 
-    def __init__(self, first_team_name='', first_team_score='', first_team_number='', second_team_name='', second_team_score='', second_team_number='', date=''):
-        self.firstTeamName = first_team_name
-        self.firstTeamScore = first_team_score
-        self.firstTeamNumber = first_team_number
-        self.secondTeamName = second_team_name
-        self.secondTeamScore = second_team_score
-        self.secondTeamNumber = second_team_number
-        self.date = date
+    def __init__(self, team1_id=-1, team2_id=-1, team1_name='', team2_name='', team1_rank=0, team2_rank=0, team1_score='', team2_score='', date=''):
+        self.Team1ID = team1_id
+        self.Team2ID = team2_id
+        self.Team1Name = team1_name
+        self.Team2Name = team2_name
+        self.Team1Rank = team1_rank
+        self.Team2Rank = team2_rank
+        self.Team1Score = team1_score
+        self.Team2Score = team2_score
+        self.Date = date
 
     def __repr__(self):
-        return "<TeamScoreHASLAMETRICS(firstTeamName='{}', firstTeamScore='{}', firstTeamNumber={}, " \
-               "secondTeamName={}, secondTeamScore={}, secondTeamNumber={}, date={}, createdDate={})>" \
-            .format(self.firstTeamName, self.firstTeamScore, self.firstTeamNumber, self.secondTeamName,
-                    self.secondTeamScore, self.secondTeamNumber, self.date, self.createdDate)
+        return "<HaslaMetrics(Team1ID='{}', Team2ID='{}', Team1Rank={}, " \
+               "Team2Rank={}, Team1Score={}, Team2Score={}, Date={}, CreatedDate={})>" \
+            .format(self.Team1ID, self.Team2ID, self.Team1Rank, self.Team2Rank,
+                    self.Team1Score, self.Team2Score, self.Date, self.CreatedDate)

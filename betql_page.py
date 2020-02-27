@@ -14,8 +14,8 @@ password = 'Br@df0rd$$'
 # eastern = pytz.timezone('US/Eastern')
 
 today = datetime.now()
-before_date = today.strftime('%Y-%m-%dT') + '16:59:59.999Z'
-after_date = datetime.strftime(today - timedelta(1), '%Y-%m-%dT') + '17:00:00.000Z'
+before_date = datetime.strftime(today + timedelta(1), '%Y-%m-%dT') + '16:59:59.999Z'
+after_date = datetime.strftime(today, '%Y-%m-%dT') + '17:00:00.000Z'
 book_id = "2a09f6df-5b47-4f87-82ef-91a77d26eef9"
 print("Start BetQL work")
 login_res = requests.post(api_url,

@@ -39,7 +39,7 @@ vegasinsider_ncaa_info = ['Season', 'Team', 'Rank', 'TOTAL_POWER', 'CONF_ADJ_PER
                           'PURE_RTG', 'SU_W', 'SU_L', 'AVE_PF', 'AVE_PA', 'AVE_MGN', 'PS_W', 'PS_L', 'PS_P', 'HCV',
                           'PURE_AOPR', 'CONF_ADJ_AOPR', 'ALPA', 'ARVL', 'Sked_Strgth', 'Sked_Strgth_Conf_Comp',
                           'RN_W', 'RN_L']
-hasla_metrics_info = ['Team1', 'Team2', 'Date', 'Team1Score', 'Team2Score']
+hasla_metrics_info = ['Team1', 'Team2', 'Date', 'Team1Rank', 'Team2Rank', 'Team1Score', 'Team2Score']
 ncaa_team_info = ['NCAA Team Name', 'Name Variations 1', 'Name Variations 2']
 nba_team_info = ['NBA Team Name', 'Name Variation 1']
 game_date_info = ['Game Date']
