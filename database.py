@@ -31,9 +31,11 @@ from models.betql_model import BetQL2ndHalfSpreadNBA
 from models.betql_model import BetQL2ndHalfMoneylineNBA
 from models.sportsinsights_model import SportsInsightsBETSIGNALS
 from models.sportsinsights_model import SportsInsightsBESTBETS
-from config import DATABASE_URI
-
-engine = db.create_engine(DATABASE_URI)
+import config
+if config.SERVER_ENVIRONMENT:
+    engine = db.create_engine(config.SERVER_DATABASE_URI)
+else:
+    engine = db.create_engine(config.LOCAL_DATABASE_URI)
 connection = engine.connect()
 if connection:
     print("Database opened successfully")

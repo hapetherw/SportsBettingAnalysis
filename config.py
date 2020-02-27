@@ -1,5 +1,6 @@
 SERVER_ENVIRONMENT = 0
-DATABASE_URI = 'mssql+pymssql://DESKTOP-98F3HH3/SportsBettingAnalysis'
+LOCAL_DATABASE_URI = 'mssql+pymssql://DESKTOP-98F3HH3/SportsBettingAnalysis'
+SERVER_DATABASE_URI = 'mssql+pymssql://gamblingdbadmin:Blackjack2121!@gamblingdb.database.windows.net/GamblingDB'
 GOOGLE_SPREAD_SHEET_CREDENTIAL = 'test1-3301c1f1cf08.json'
 GOOGLE_SPREAD_SHEET_NAME = 'SportsBetting_Analysis'
 SHARE_EMAIL = 'shanehvizdzak@gmail.com'
