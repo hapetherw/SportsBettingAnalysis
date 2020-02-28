@@ -1,3154 +1,518 @@
 import datetime
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Float
 
 from models.model import Base
 
 
-class BetQLSpreadNCAAB(Base):
-    __tablename__ = 'BetQLSpreadNCAAB'
+class BetQL_NCAA(Base):
+    __tablename__ = 'BetQL_NCAA'
+    gsheet_table_columns = ['SlugID', 'HomeTeamShortName', 'HomeTeamFullName', 'AwayTeamShortName', 'AwayTeamFullName',
+                            'EventState', 'StartDate', 'H_current_spread', 'A_current_spread', 'Spread_best_rating',
+                            'H_current_moneyline', 'A_current_moneyline', 'Moneyline_best_rating', 'Current_U',
+                            'Current_O', 'Total_best_rating', 'H_current_1h_spread', 'A_current_1h_spread',
+                            '1h_spread_best_rating', 'H_current_1h_moneyline', 'A_current_1h_moneyline',
+                            '1h_moneyline_best_rating', 'Current_1h_U', 'Current_1h_O', '1h_total_best_rating',
+                            'H_current_2h_spread', 'A_current_2h_spread', 'H_current_2h_moneyline',
+                            'A_current_2h_moneyline', 'H_road_ou', 'A_road_ou', 'H_home_ou', 'A_home_ou', 'H_under',
+                            'A_under', 'H_over', 'A_over', 'H_under_record', 'A_under_record', 'H_over_record',
+                            'A_over_record', 'H_net_units', 'A_net_units', 'H_road', 'A_road', 'H_home', 'A_home',
+                            'H_season_win', 'A_season_win', 'H_games', 'A_games', 'H_ATS_units', 'A_ATS_units',
+                            'H_road_ATS', 'A_road_ATS', 'H_home_ATS', 'A_home_ATS', 'H_ATS_win', 'A_ATS_win',
+                            'H_ATS_rec', 'A_ATS_rec', 'U_of_tickets', 'O_of_tickets', 'H_ml_of_tickets',
+                            'A_ml_of_tickets', 'H_sp_of_tickets', 'A_sp_of_tickets', 'H_open_spread', 'A_open_spread',
+                            'H_open_moneyline', 'A_open_moneyline', 'Open_U', 'Open_O', 'H_open_1h_spread',
+                            'A_open_1h_spread', 'H_open_1h_moneyline', 'A_open_1h_moneyline', 'Open_1h_U', 'Open_1h_O',
+                            'H_open_2h_spread', 'A_open_2h_spread', 'H_open_2h_moneyline', 'A_open_2h_moneyline']
     ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
+    SlugID = Column(String, nullable=True)
+    HomeTeamID = Column(Integer, nullable=True)
+    AwayTeamID = Column(Integer, nullable=True)
+    EventState = Column(String, nullable=True)
+    StartDate = Column(String, nullable=True)
+    H_current_spread = Column(Float, nullable=True)
+    A_current_spread = Column(Float, nullable=True)
+    Spread_best_rating = Column(Integer, nullable=True)
+    H_current_moneyline = Column(Float, nullable=True)
+    A_current_moneyline = Column(Float, nullable=True)
+    Moneyline_best_rating = Column(Integer, nullable=True)
+    Current_U = Column(Float, nullable=True)
+    Current_O = Column(Float, nullable=True)
+    Total_best_rating = Column(Integer, nullable=True)
+    H_current_1h_spread = Column(Float, nullable=True)
+    A_current_1h_spread = Column(Float, nullable=True)
+    First_spread_best_rating = Column(Integer, nullable=True)
+    H_current_1h_moneyline = Column(Float, nullable=True)
+    A_current_1h_moneyline = Column(Float, nullable=True)
+    First_moneyline_best_rating = Column(Integer, nullable=True)
+    Current_1h_U = Column(Float, nullable=True)
+    Current_1h_O = Column(Float, nullable=True)
+    First_total_best_rating = Column(Integer, nullable=True)
+    H_current_2h_spread = Column(Float, nullable=True)
+    A_current_2h_spread = Column(Float, nullable=True)
+    H_current_2h_moneyline = Column(Float, nullable=True)
+    A_current_2h_moneyline = Column(Float, nullable=True)
+    H_road_ou = Column(String, nullable=True)
+    A_road_ou = Column(String, nullable=True)
+    H_home_ou = Column(String, nullable=True)
+    A_home_ou = Column(String, nullable=True)
+    H_under = Column(Float, nullable=True)
+    A_under = Column(Float, nullable=True)
+    H_over = Column(Float, nullable=True)
+    A_over = Column(Float, nullable=True)
+    H_under_record = Column(String, nullable=True)
+    A_under_record = Column(String, nullable=True)
+    H_over_record = Column(String, nullable=True)
+    A_over_record = Column(String, nullable=True)
+    H_net_units = Column(Float, nullable=True)
+    A_net_units = Column(Float, nullable=True)
+    H_road = Column(String, nullable=True)
+    A_road = Column(String, nullable=True)
+    H_home = Column(String, nullable=True)
+    A_home = Column(String, nullable=True)
+    H_season_win = Column(Float, nullable=True)
+    A_season_win = Column(Float, nullable=True)
+    H_games = Column(Integer, nullable=True)
+    A_games = Column(Integer, nullable=True)
+    H_ATS_units = Column(Float, nullable=True)
+    A_ATS_units = Column(Float, nullable=True)
+    H_road_ATS = Column(String, nullable=True)
+    A_road_ATS = Column(String, nullable=True)
+    H_home_ATS = Column(String, nullable=True)
+    A_home_ATS = Column(String, nullable=True)
+    H_ATS_win = Column(Float, nullable=True)
+    A_ATS_win = Column(Float, nullable=True)
+    H_ATS_rec = Column(String, nullable=True)
+    A_ATS_rec = Column(String, nullable=True)
+    U_of_tickets = Column(Float, nullable=True)
+    O_of_tickets = Column(Float, nullable=True)
+    H_ml_of_tickets = Column(Float, nullable=True)
+    A_ml_of_tickets = Column(Float, nullable=True)
+    H_sp_of_tickets = Column(Float, nullable=True)
+    A_sp_of_tickets = Column(Float, nullable=True)
+    H_open_spread = Column(Float, nullable=True)
+    A_open_spread = Column(Float, nullable=True)
+    H_open_moneyline = Column(Float, nullable=True)
+    A_open_moneyline = Column(Float, nullable=True)
+    Open_U = Column(Float, nullable=True)
+    Open_O = Column(Float, nullable=True)
+    H_open_1h_spread = Column(Float, nullable=True)
+    A_open_1h_spread = Column(Float, nullable=True)
+    H_open_1h_moneyline = Column(Float, nullable=True)
+    A_open_1h_moneyline = Column(Float, nullable=True)
+    Open_1h_U = Column(Float, nullable=True)
+    Open_1h_O = Column(Float, nullable=True)
+    H_open_2h_spread = Column(Float, nullable=True)
+    A_open_2h_spread = Column(Float, nullable=True)
+    H_open_2h_moneyline = Column(Float, nullable=True)
+    A_open_2h_moneyline = Column(Float, nullable=True)
     CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
 
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
+    def __init__(self, SlugID='', HomeTeamID=-1, AwayTeamID=-1, EventState='', StartDate='',
+                 H_current_spread=0, A_current_spread=0, Spread_best_rating=0, H_current_moneyline=0,
+                 A_current_moneyline=0, Moneyline_best_rating=0, Current_U=0, Current_O=0, Total_best_rating=0,
+                 H_current_1h_spread=0, A_current_1h_spread=0, First_spread_best_rating=0, H_current_1h_moneyline=0,
+                 A_current_1h_moneyline=0, First_moneyline_best_rating=0, Current_1h_U=0, Current_1h_O=0,
+                 First_total_best_rating=0, H_current_2h_spread=0, A_current_2h_spread=0, H_current_2h_moneyline=0,
+                 A_current_2h_moneyline=0, H_road_ou='', A_road_ou='', H_home_ou='', A_home_ou='', H_under=0,
+                 A_under=0, H_over=0, A_over=0, H_under_record='', A_under_record='', H_over_record='',
+                 A_over_record='', H_net_units=0, A_net_units=0, H_road='', A_road='', H_home='', A_home='',
+                 H_season_win=0,
+                 A_season_win=0, H_games=0, A_games=0, H_ATS_units=0, A_ATS_units=0, H_road_ATS='', A_road_ATS='',
+                 H_home_ATS='', A_home_ATS='', H_ATS_win=0, A_ATS_win=0, H_ATS_rec='', A_ATS_rec='',
+                 U_of_tickets=0, O_of_tickets=0, H_ml_of_tickets=0, A_ml_of_tickets=0, H_sp_of_tickets=0,
+                 A_sp_of_tickets=0, H_open_spread=0, A_open_spread=0, H_open_moneyline=0, A_open_moneyline=0,
+                 Open_U=0, Open_O=0, H_open_1h_spread=0, A_open_1h_spread=0, H_open_1h_moneyline=0,
+                 A_open_1h_moneyline=0, Open_1h_U=0, Open_1h_O=0, H_open_2h_spread=0, A_open_2h_spread=0,
+                 H_open_2h_moneyline=0, A_open_2h_moneyline=0):
+        self.SlugID = SlugID
+        self.HomeTeamID = HomeTeamID
+        self.AwayTeamID = AwayTeamID
+        self.EventState = EventState
+        self.StartDate = StartDate
+        self.H_current_spread = H_current_spread
+        self.A_current_spread = A_current_spread
+        self.Spread_best_rating = Spread_best_rating
+        self.H_current_moneyline = H_current_moneyline
+        self.A_current_moneyline = A_current_moneyline
+        self.Moneyline_best_rating = Moneyline_best_rating
+        self.Current_U = Current_U
+        self.Current_O = Current_O
+        self.Total_best_rating = Total_best_rating
+        self.H_current_1h_spread = H_current_1h_spread
+        self.A_current_1h_spread = A_current_1h_spread
+        self.First_spread_best_rating = First_spread_best_rating
+        self.H_current_1h_moneyline = H_current_1h_moneyline
+        self.A_current_1h_moneyline = A_current_1h_moneyline
+        self.First_moneyline_best_rating = First_moneyline_best_rating
+        self.Current_1h_U = Current_1h_U
+        self.Current_1h_O = Current_1h_O
+        self.First_total_best_rating = First_total_best_rating
+        self.H_current_2h_spread = H_current_2h_spread
+        self.A_current_2h_spread = A_current_2h_spread
+        self.H_current_2h_moneyline = H_current_2h_moneyline
+        self.A_current_2h_moneyline = A_current_2h_moneyline
+        self.H_road_ou = H_road_ou
+        self.A_road_ou = A_road_ou
+        self.H_home_ou = H_home_ou
+        self.A_home_ou = A_home_ou
+        self.H_under = H_under
+        self.A_under = A_under
+        self.H_over = H_over
+        self.A_over = A_over
+        self.H_under_record = H_under_record
+        self.A_under_record = A_under_record
+        self.H_over_record = H_over_record
+        self.A_over_record = A_over_record
+        self.H_net_units = H_net_units
+        self.A_net_units = A_net_units
+        self.H_road = H_road
+        self.A_road = A_road
+        self.H_home = H_home
+        self.A_home = A_home
+        self.H_season_win = H_season_win
+        self.A_season_win = A_season_win
+        self.H_games = H_games
+        self.A_games = A_games
+        self.H_ATS_units = H_ATS_units
+        self.A_ATS_units = A_ATS_units
+        self.H_road_ATS = H_road_ATS
+        self.A_road_ATS = A_road_ATS
+        self.H_home_ATS = H_home_ATS
+        self.A_home_ATS = A_home_ATS
+        self.H_ATS_win = H_ATS_win
+        self.A_ATS_win = A_ATS_win
+        self.H_ATS_rec = H_ATS_rec
+        self.A_ATS_rec = A_ATS_rec
+        self.U_of_tickets = U_of_tickets
+        self.O_of_tickets = O_of_tickets
+        self.H_ml_of_tickets = H_ml_of_tickets
+        self.A_ml_of_tickets = A_ml_of_tickets
+        self.H_sp_of_tickets = H_sp_of_tickets
+        self.A_sp_of_tickets = A_sp_of_tickets
+        self.H_open_spread = H_open_spread
+        self.A_open_spread = A_open_spread
+        self.H_open_moneyline = H_open_moneyline
+        self.A_open_moneyline = A_open_moneyline
+        self.Open_U = Open_U
+        self.Open_O = Open_O
+        self.H_open_1h_spread = H_open_1h_spread
+        self.A_open_1h_spread = A_open_1h_spread
+        self.H_open_1h_moneyline = H_open_1h_moneyline
+        self.A_open_1h_moneyline = A_open_1h_moneyline
+        self.Open_1h_U = Open_1h_U
+        self.Open_1h_O = Open_1h_O
+        self.H_open_2h_spread = H_open_2h_spread
+        self.A_open_2h_spread = A_open_2h_spread
+        self.H_open_2h_moneyline = H_open_2h_moneyline
+        self.A_open_2h_moneyline = A_open_2h_moneyline
 
     def __repr__(self):
-        return "<BetQLSpreadNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
+        return "<BetQL_NCAA(SlugID={}, HomeTeamID={}, AwayTeamID={}, EventState={}, StartDate={}, " \
+               "H_current_spread={}, A_current_spread={}, Spread_best_rating={}, H_current_moneyline={}, " \
+               "A_current_moneyline={}, Moneyline_best_rating={}, Current_U={}, Current_O={}, " \
+               "Total_best_rating={}, H_current_1h_spread={}, A_current_1h_spread={}, First_spread_best_rating={}, " \
+               "H_current_1h_moneyline={}, A_current_1h_moneyline={}, First_moneyline_best_rating={}, Current_1h_U={}, " \
+               "Current_1h_O={}, First_total_best_rating={}, " \
+               "H_current_2h_spread={}, A_current_2h_spread={}, H_current_2h_moneyline={}, A_current_2h_moneyline={}, " \
+               "H_road_ou={}, A_road_ou={}, H_home_ou={}, " \
+               "A_home_ou={}, H_under={}, A_under={}, H_over={}, A_over={}, H_under_record={}, A_under_record={}, " \
+               "H_over_record={}, A_over_record={}, H_net_units={}, A_net_units={}, H_road={}, A_road={}, " \
+               "H_home={}, A_home={}, " \
+               "H_season_win={}, A_season_win={}, H_games={}, A_games={}, H_ATS_units={}, A_ATS_units={}, " \
+               "H_road_ATS={}, A_road_ATS={}, H_home_ATS={}, A_home_ATS={}, H_ATS_win={}, A_ATS_win={}, " \
+               "H_ATS_rec={}, A_ATS_rec={}, U_of_tickets={}, O_of_tickets={}, H_ml_of_tickets={}, " \
+               "A_ml_of_tickets={}, H_sp_of_tickets={}, A_sp_of_tickets={}, H_open_spread={}, A_open_spread={}, " \
+               "H_open_moneyline={}, " \
+               "A_open_moneyline={}, Open_U={}, Open_O={}, H_open_1h_spread={}, A_open_1h_spread={}, " \
+               "H_open_1h_moneyline={}, A_open_1h_moneyline={}, " \
+               "Open_1h_U={}, Open_1h_O={}, H_open_2h_spread={}, A_open_2h_spread={}, H_open_2h_moneyline={}, " \
+               "A_open_2h_moneyline={}, CreatedDate={})>" \
+            .format(self.SlugID, self.HomeTeamID, self.AwayTeamID, self.EventState, self.StartDate,
+                    self.H_current_spread, self.A_current_spread, self.Spread_best_rating, self.H_current_moneyline,
+                    self.A_current_moneyline, self.Moneyline_best_rating, self.Current_U, self.Current_O,
+                    self.Total_best_rating,
+                    self.H_current_1h_spread, self.A_current_1h_spread, self.First_spread_best_rating,
+                    self.H_current_1h_moneyline,
+                    self.A_current_1h_moneyline, self.First_moneyline_best_rating, self.Current_1h_U, self.Current_1h_O,
+                    self.First_total_best_rating, self.H_current_2h_spread, self.A_current_2h_spread,
+                    self.H_current_2h_moneyline,
+                    self.A_current_2h_moneyline, self.H_road_ou, self.A_road_ou, self.H_home_ou, self.A_home_ou,
+                    self.H_under,
+                    self.A_under, self.H_over, self.A_over, self.H_under_record, self.A_under_record,
+                    self.H_over_record,
+                    self.A_over_record, self.H_net_units, self.A_net_units, self.H_road, self.A_road, self.H_home,
+                    self.A_home,
+                    self.H_season_win,
+                    self.A_season_win, self.H_games, self.A_games, self.H_ATS_units, self.A_ATS_units, self.H_road_ATS,
+                    self.A_road_ATS,
+                    self.H_home_ATS, self.A_home_ATS, self.H_ATS_win, self.A_ATS_win, self.H_ATS_rec, self.A_ATS_rec,
+                    self.U_of_tickets, self.O_of_tickets, self.H_ml_of_tickets, self.A_ml_of_tickets,
+                    self.H_sp_of_tickets,
+                    self.A_sp_of_tickets, self.H_open_spread, self.A_open_spread, self.H_open_moneyline,
+                    self.A_open_moneyline,
+                    self.Open_U, self.Open_O, self.H_open_1h_spread, self.A_open_1h_spread, self.H_open_1h_moneyline,
+                    self.A_open_1h_moneyline, self.Open_1h_U, self.Open_1h_O, self.H_open_2h_spread,
+                    self.A_open_2h_spread,
+                    self.H_open_2h_moneyline, self.A_open_2h_moneyline, self.CreatedDate)
 
 
-class BetQLMoneylineNCAAB(Base):
-    __tablename__ = 'BetQLMoneylineNCAAB'
+class BetQL_NBA(Base):
+    __tablename__ = 'BetQL_NBA'
+    gsheet_table_columns = ['SlugID', 'HomeTeamShortName', 'HomeTeamFullName', 'AwayTeamShortName', 'AwayTeamFullName',
+                            'EventState', 'StartDate', 'H_current_spread', 'A_current_spread', 'Spread_best_rating',
+                            'H_current_moneyline', 'A_current_moneyline', 'Moneyline_best_rating', 'Current_U',
+                            'Current_O', 'Total_best_rating', 'H_current_1h_spread', 'A_current_1h_spread',
+                            '1h_spread_best_rating', 'H_current_1h_moneyline', 'A_current_1h_moneyline',
+                            '1h_moneyline_best_rating', 'Current_1h_U', 'Current_1h_O', '1h_total_best_rating',
+                            'H_current_2h_spread', 'A_current_2h_spread', 'H_current_2h_moneyline',
+                            'A_current_2h_moneyline', 'H_points_against', 'A_points_against', 'H_points_for',
+                            'A_points_for', 'H_road_ou', 'A_road_ou', 'H_home_ou', 'A_home_ou', 'H_under',
+                            'A_under', 'H_over', 'A_over', 'H_under_record', 'A_under_record', 'H_over_record',
+                            'A_over_record', 'H_net_units', 'A_net_units', 'H_road', 'A_road', 'H_home', 'A_home',
+                            'H_season_win', 'A_season_win', 'H_games', 'A_games', 'H_ATS_units', 'A_ATS_units',
+                            'H_road_ATS', 'A_road_ATS', 'H_home_ATS', 'A_home_ATS', 'H_ATS_win', 'A_ATS_win',
+                            'H_ATS_rec', 'A_ATS_rec', 'U_of_tickets', 'O_of_tickets', 'H_ml_of_tickets',
+                            'A_ml_of_tickets', 'H_sp_of_tickets', 'A_sp_of_tickets', 'H_open_spread', 'A_open_spread',
+                            'H_open_moneyline', 'A_open_moneyline', 'Open_U', 'Open_O', 'H_open_1h_spread',
+                            'A_open_1h_spread', 'H_open_1h_moneyline', 'A_open_1h_moneyline', 'Open_1h_U', 'Open_1h_O',
+                            'H_open_2h_spread', 'A_open_2h_spread', 'H_open_2h_moneyline', 'A_open_2h_moneyline']
     ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
+    SlugID = Column(String, nullable=True)
+    HomeTeamID = Column(Integer, nullable=True)
+    AwayTeamID = Column(Integer, nullable=True)
+    EventState = Column(String, nullable=True)
+    StartDate = Column(String, nullable=True)
+    H_current_spread = Column(Float, nullable=True)
+    A_current_spread = Column(Float, nullable=True)
+    Spread_best_rating = Column(Integer, nullable=True)
+    H_current_moneyline = Column(Float, nullable=True)
+    A_current_moneyline = Column(Float, nullable=True)
+    Moneyline_best_rating = Column(Integer, nullable=True)
+    Current_U = Column(Float, nullable=True)
+    Current_O = Column(Float, nullable=True)
+    Total_best_rating = Column(Integer, nullable=True)
+    H_current_1h_spread = Column(Float, nullable=True)
+    A_current_1h_spread = Column(Float, nullable=True)
+    First_spread_best_rating = Column(Integer, nullable=True)
+    H_current_1h_moneyline = Column(Float, nullable=True)
+    A_current_1h_moneyline = Column(Float, nullable=True)
+    First_moneyline_best_rating = Column(Integer, nullable=True)
+    Current_1h_U = Column(Float, nullable=True)
+    Current_1h_O = Column(Float, nullable=True)
+    First_total_best_rating = Column(Integer, nullable=True)
+    H_current_2h_spread = Column(Float, nullable=True)
+    A_current_2h_spread = Column(Float, nullable=True)
+    H_current_2h_moneyline = Column(Float, nullable=True)
+    A_current_2h_moneyline = Column(Float, nullable=True)
+    H_points_against = Column(Float, nullable=True)
+    A_points_against = Column(Float, nullable=True)
+    H_points_for = Column(Float, nullable=True)
+    A_points_for = Column(Float, nullable=True)
+    H_road_ou = Column(String, nullable=True)
+    A_road_ou = Column(String, nullable=True)
+    H_home_ou = Column(String, nullable=True)
+    A_home_ou = Column(String, nullable=True)
+    H_under = Column(Float, nullable=True)
+    A_under = Column(Float, nullable=True)
+    H_over = Column(Float, nullable=True)
+    A_over = Column(Float, nullable=True)
+    H_under_record = Column(String, nullable=True)
+    A_under_record = Column(String, nullable=True)
+    H_over_record = Column(String, nullable=True)
+    A_over_record = Column(String, nullable=True)
+    H_net_units = Column(Float, nullable=True)
+    A_net_units = Column(Float, nullable=True)
+    H_road = Column(String, nullable=True)
+    A_road = Column(String, nullable=True)
+    H_home = Column(String, nullable=True)
+    A_home = Column(String, nullable=True)
+    H_season_win = Column(Float, nullable=True)
+    A_season_win = Column(Float, nullable=True)
+    H_games = Column(Integer, nullable=True)
+    A_games = Column(Integer, nullable=True)
+    H_ATS_units = Column(Float, nullable=True)
+    A_ATS_units = Column(Float, nullable=True)
+    H_road_ATS = Column(String, nullable=True)
+    A_road_ATS = Column(String, nullable=True)
+    H_home_ATS = Column(String, nullable=True)
+    A_home_ATS = Column(String, nullable=True)
+    H_ATS_win = Column(Float, nullable=True)
+    A_ATS_win = Column(Float, nullable=True)
+    H_ATS_rec = Column(String, nullable=True)
+    A_ATS_rec = Column(String, nullable=True)
+    U_of_tickets = Column(Float, nullable=True)
+    O_of_tickets = Column(Float, nullable=True)
+    H_ml_of_tickets = Column(Float, nullable=True)
+    A_ml_of_tickets = Column(Float, nullable=True)
+    H_sp_of_tickets = Column(Float, nullable=True)
+    A_sp_of_tickets = Column(Float, nullable=True)
+    H_open_spread = Column(Float, nullable=True)
+    A_open_spread = Column(Float, nullable=True)
+    H_open_moneyline = Column(Float, nullable=True)
+    A_open_moneyline = Column(Float, nullable=True)
+    Open_U = Column(Float, nullable=True)
+    Open_O = Column(Float, nullable=True)
+    H_open_1h_spread = Column(Float, nullable=True)
+    A_open_1h_spread = Column(Float, nullable=True)
+    H_open_1h_moneyline = Column(Float, nullable=True)
+    A_open_1h_moneyline = Column(Float, nullable=True)
+    Open_1h_U = Column(Float, nullable=True)
+    Open_1h_O = Column(Float, nullable=True)
+    H_open_2h_spread = Column(Float, nullable=True)
+    A_open_2h_spread = Column(Float, nullable=True)
+    H_open_2h_moneyline = Column(Float, nullable=True)
+    A_open_2h_moneyline = Column(Float, nullable=True)
     CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
 
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
+    def __init__(self, SlugID='', HomeTeamID=-1, AwayTeamID=-1, EventState='', StartDate='',
+                 H_current_spread=0, A_current_spread=0, Spread_best_rating=0, H_current_moneyline=0,
+                 A_current_moneyline=0, Moneyline_best_rating=0, Current_U=0, Current_O=0, Total_best_rating=0,
+                 H_current_1h_spread=0, A_current_1h_spread=0, First_spread_best_rating=0, H_current_1h_moneyline=0,
+                 A_current_1h_moneyline=0, First_moneyline_best_rating=0, Current_1h_U=0, Current_1h_O=0,
+                 First_total_best_rating=0, H_current_2h_spread=0, A_current_2h_spread=0, H_current_2h_moneyline=0,
+                 A_current_2h_moneyline=0, H_points_against=0, A_points_against=0, H_points_for=0, A_points_for=0,
+                 H_road_ou='', A_road_ou='', H_home_ou='', A_home_ou='', H_under=0,
+                 A_under=0, H_over=0, A_over=0, H_under_record='', A_under_record='', H_over_record='',
+                 A_over_record='', H_net_units=0, A_net_units=0, H_road='', A_road='', H_home='', A_home='',
+                 H_season_win=0,
+                 A_season_win=0, H_games=0, A_games=0, H_ATS_units=0, A_ATS_units=0, H_road_ATS='', A_road_ATS='',
+                 H_home_ATS='', A_home_ATS='', H_ATS_win=0, A_ATS_win=0, H_ATS_rec='', A_ATS_rec='',
+                 U_of_tickets=0, O_of_tickets=0, H_ml_of_tickets=0, A_ml_of_tickets=0, H_sp_of_tickets=0,
+                 A_sp_of_tickets=0, H_open_spread=0, A_open_spread=0, H_open_moneyline=0, A_open_moneyline=0,
+                 Open_U=0, Open_O=0, H_open_1h_spread=0, A_open_1h_spread=0, H_open_1h_moneyline=0,
+                 A_open_1h_moneyline=0, Open_1h_U=0, Open_1h_O=0, H_open_2h_spread=0, A_open_2h_spread=0,
+                 H_open_2h_moneyline=0, A_open_2h_moneyline=0):
+        self.SlugID = SlugID
+        self.HomeTeamID = HomeTeamID
+        self.AwayTeamID = AwayTeamID
+        self.EventState = EventState
+        self.StartDate = StartDate
+        self.H_current_spread = H_current_spread
+        self.A_current_spread = A_current_spread
+        self.Spread_best_rating = Spread_best_rating
+        self.H_current_moneyline = H_current_moneyline
+        self.A_current_moneyline = A_current_moneyline
+        self.Moneyline_best_rating = Moneyline_best_rating
+        self.Current_U = Current_U
+        self.Current_O = Current_O
+        self.Total_best_rating = Total_best_rating
+        self.H_current_1h_spread = H_current_1h_spread
+        self.A_current_1h_spread = A_current_1h_spread
+        self.First_spread_best_rating = First_spread_best_rating
+        self.H_current_1h_moneyline = H_current_1h_moneyline
+        self.A_current_1h_moneyline = A_current_1h_moneyline
+        self.First_moneyline_best_rating = First_moneyline_best_rating
+        self.Current_1h_U = Current_1h_U
+        self.Current_1h_O = Current_1h_O
+        self.First_total_best_rating = First_total_best_rating
+        self.H_current_2h_spread = H_current_2h_spread
+        self.A_current_2h_spread = A_current_2h_spread
+        self.H_current_2h_moneyline = H_current_2h_moneyline
+        self.A_current_2h_moneyline = A_current_2h_moneyline
+        self.H_points_against = H_points_against
+        self.A_points_against = A_points_against
+        self.H_points_for = H_points_for
+        self.A_points_for = A_points_for
+        self.H_road_ou = H_road_ou
+        self.A_road_ou = A_road_ou
+        self.H_home_ou = H_home_ou
+        self.A_home_ou = A_home_ou
+        self.H_under = H_under
+        self.A_under = A_under
+        self.H_over = H_over
+        self.A_over = A_over
+        self.H_under_record = H_under_record
+        self.A_under_record = A_under_record
+        self.H_over_record = H_over_record
+        self.A_over_record = A_over_record
+        self.H_net_units = H_net_units
+        self.A_net_units = A_net_units
+        self.H_road = H_road
+        self.A_road = A_road
+        self.H_home = H_home
+        self.A_home = A_home
+        self.H_season_win = H_season_win
+        self.A_season_win = A_season_win
+        self.H_games = H_games
+        self.A_games = A_games
+        self.H_ATS_units = H_ATS_units
+        self.A_ATS_units = A_ATS_units
+        self.H_road_ATS = H_road_ATS
+        self.A_road_ATS = A_road_ATS
+        self.H_home_ATS = H_home_ATS
+        self.A_home_ATS = A_home_ATS
+        self.H_ATS_win = H_ATS_win
+        self.A_ATS_win = A_ATS_win
+        self.H_ATS_rec = H_ATS_rec
+        self.A_ATS_rec = A_ATS_rec
+        self.U_of_tickets = U_of_tickets
+        self.O_of_tickets = O_of_tickets
+        self.H_ml_of_tickets = H_ml_of_tickets
+        self.A_ml_of_tickets = A_ml_of_tickets
+        self.H_sp_of_tickets = H_sp_of_tickets
+        self.A_sp_of_tickets = A_sp_of_tickets
+        self.H_open_spread = H_open_spread
+        self.A_open_spread = A_open_spread
+        self.H_open_moneyline = H_open_moneyline
+        self.A_open_moneyline = A_open_moneyline
+        self.Open_U = Open_U
+        self.Open_O = Open_O
+        self.H_open_1h_spread = H_open_1h_spread
+        self.A_open_1h_spread = A_open_1h_spread
+        self.H_open_1h_moneyline = H_open_1h_moneyline
+        self.A_open_1h_moneyline = A_open_1h_moneyline
+        self.Open_1h_U = Open_1h_U
+        self.Open_1h_O = Open_1h_O
+        self.H_open_2h_spread = H_open_2h_spread
+        self.A_open_2h_spread = A_open_2h_spread
+        self.H_open_2h_moneyline = H_open_2h_moneyline
+        self.A_open_2h_moneyline = A_open_2h_moneyline
 
     def __repr__(self):
-        return "<BetQLMoneylineNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQLTotalNCAAB(Base):
-    __tablename__ = 'BetQLTotalNCAAB'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQLTotalNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL1stHalfSpreadNCAAB(Base):
-    __tablename__ = 'BetQL1stHalfSpreadNCAAB'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL1stHalfSpreadNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, " \
-               "H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL1stHalfMoneylineNCAAB(Base):
-    __tablename__ = 'BetQL1stHalfMoneylineNCAAB'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL1stHalfMoneylineNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, " \
-               "H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL1stHalfTotalNCAAB(Base):
-    __tablename__ = 'BetQL1stHalfTotalNCAAB'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL1stHalfTotalNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={" \
-               "}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL2ndHalfSpreadNCAAB(Base):
-    __tablename__ = 'BetQL2ndHalfSpreadNCAAB'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL2ndHalfSpreadNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, " \
-               "H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL2ndHalfMoneylineNCAAB(Base):
-    __tablename__ = 'BetQL2ndHalfMoneylineNCAAB'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_RoadOU='', A_RoadOU='', H_HomeOU='',
-                 A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL2ndHalfMoneylineNCAAB(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, " \
-               "H_BetRating={}, " \
-               "A_BetRating={}, H_RoadOU={}, A_RoadOU={}, H_HomeOU={}, " \
-               "A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-# NBA
-class BetQLSpreadNBA(Base):
-    __tablename__ = 'BetQLSpreadNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQLSpreadNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQLMoneylineNBA(Base):
-    __tablename__ = 'BetQLMoneylineNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQLMoneylineNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQLTotalNBA(Base):
-    __tablename__ = 'BetQLTotalNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQLTotalNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL1stHalfSpreadNBA(Base):
-    __tablename__ = 'BetQL1stHalfSpreadNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL1stHalfSpreadNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL1stHalfMoneylineNBA(Base):
-    __tablename__ = 'BetQL1stHalfMoneylineNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL1stHalfMoneylineNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL1stHalfTotalNBA(Base):
-    __tablename__ = 'BetQL1stHalfTotalNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL1stHalfTotalNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL2ndHalfSpreadNBA(Base):
-    __tablename__ = 'BetQL2ndHalfSpreadNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL2ndHalfSpreadNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
-
-
-class BetQL2ndHalfMoneylineNBA(Base):
-    __tablename__ = 'BetQL2ndHalfMoneylineNBA'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
-    HomeTeam = Column(String, nullable=True)
-    AwayTeam = Column(String, nullable=True)
-    H_CurrentSP = Column(String, nullable=True)
-    A_CurrentSP = Column(String, nullable=True)
-    H_BetRating = Column(String, nullable=True)
-    A_BetRating = Column(String, nullable=True)
-    H_PointsAgainst = Column(String, nullable=True)
-    A_PointsAgainst = Column(String, nullable=True)
-    H_PointsFor = Column(String, nullable=True)
-    A_PointsFor = Column(String, nullable=True)
-    H_RoadOU = Column(String, nullable=True)
-    A_RoadOU = Column(String, nullable=True)
-    H_HomeOU = Column(String, nullable=True)
-    A_HomeOU = Column(String, nullable=True)
-    H_Under = Column(String, nullable=True)
-    A_Under = Column(String, nullable=True)
-    H_Over = Column(String, nullable=True)
-    A_Over = Column(String, nullable=True)
-    H_UnderRecord = Column(String, nullable=True)
-    A_UnderRecord = Column(String, nullable=True)
-    H_OverRecord = Column(String, nullable=True)
-    A_OverRecord = Column(String, nullable=True)
-    H_NetUnits = Column(String, nullable=True)
-    A_NetUnits = Column(String, nullable=True)
-    H_Road = Column(String, nullable=True)
-    A_Road = Column(String, nullable=True)
-    H_Home = Column(String, nullable=True)
-    A_Home = Column(String, nullable=True)
-    H_SeasonWin = Column(String, nullable=True)
-    A_SeasonWin = Column(String, nullable=True)
-    H_Games = Column(String, nullable=True)
-    A_Games = Column(String, nullable=True)
-    H_ATSUnits = Column(String, nullable=True)
-    A_ATSUnits = Column(String, nullable=True)
-    H_RoadATS = Column(String, nullable=True)
-    A_RoadATS = Column(String, nullable=True)
-    H_HomeATS = Column(String, nullable=True)
-    A_HomeATS = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSWin = Column(String, nullable=True)
-    H_ATSRec = Column(String, nullable=True)
-    A_ATSRec = Column(String, nullable=True)
-    H_ProEdgeSP = Column(String, nullable=True)
-    A_ProEdgeSP = Column(String, nullable=True)
-    H_TicketsU = Column(String, nullable=True)
-    A_TicketsU = Column(String, nullable=True)
-    H_TicketsO = Column(String, nullable=True)
-    A_TicketsO = Column(String, nullable=True)
-    H_TicketsML = Column(String, nullable=True)
-    A_TicketsML = Column(String, nullable=True)
-    H_TicketsSP = Column(String, nullable=True)
-    A_TicketsSP = Column(String, nullable=True)
-    H_MoneySP = Column(String, nullable=True)
-    A_MoneySP = Column(String, nullable=True)
-    H_TicketSP = Column(String, nullable=True)
-    A_TicketSP = Column(String, nullable=True)
-    H_LineMoveOU = Column(String, nullable=True)
-    A_LineMoveOU = Column(String, nullable=True)
-    H_LineMoveML = Column(String, nullable=True)
-    A_LineMoveML = Column(String, nullable=True)
-    H_LineMoveSP = Column(String, nullable=True)
-    A_LineMoveSP = Column(String, nullable=True)
-    H_OpenOU = Column(String, nullable=True)
-    A_OpenOU = Column(String, nullable=True)
-    H_CurrentOU = Column(String, nullable=True)
-    A_CurrentOU = Column(String, nullable=True)
-    H_OpenML = Column(String, nullable=True)
-    A_OpenML = Column(String, nullable=True)
-    H_CurrentML = Column(String, nullable=True)
-    A_CurrentML = Column(String, nullable=True)
-    H_OpenSP = Column(String, nullable=True)
-    A_OpenSP = Column(String, nullable=True)
-    Date = Column(String, nullable=True)
-    Time = Column(String, nullable=True)
-    CreatedDate = Column(DateTime, default=datetime.datetime.now())
-    HomeFirst = Column(Integer, default=0)
-
-    def __init__(self, HomeTeam='', AwayTeam='', H_CurrentSP='', A_CurrentSP='', H_BetRating='',
-                 A_BetRating='', H_PointsAgainst='', A_PointsAgainst='', H_PointsFor='', A_PointsFor='', H_RoadOU='',
-                 A_RoadOU='', H_HomeOU='', A_HomeOU='', H_Under='', A_Under='',
-                 H_Over='', A_Over='', H_UnderRecord='',
-                 A_UnderRecord='', H_OverRecord='', A_OverRecord='', H_NetUnits='', A_NetUnits='', H_Road='',
-                 A_Road='', H_Home='', A_Home='', H_SeasonWin='', A_SeasonWin='', H_Games='', A_Games='', H_ATSUnits='',
-                 A_ATSUnits='', H_RoadATS='', A_RoadATS='', H_HomeATS='', A_HomeATS='', H_ATSWin='', A_ATSWin='',
-                 H_ATSRec='', A_ATSRec='', H_ProEdgeSP='', A_ProEdgeSP='', H_TicketsU='', A_TicketsU='', H_TicketsO='',
-                 A_TicketsO='', H_TicketsML='', A_TicketsML='', H_TicketsSP='', A_TicketsSP='', H_MoneySP='',
-                 A_MoneySP='', H_TicketSP='', A_TicketSP='', H_LineMoveOU='', A_LineMoveOU='', H_LineMoveML='',
-                 A_LineMoveML='', H_LineMoveSP='', A_LineMoveSP='', H_OpenOU='', A_OpenOU='', H_CurrentOU='',
-                 A_CurrentOU='', H_OpenML='', A_OpenML='', H_CurrentML='', A_CurrentML='', H_OpenSP='', A_OpenSP='',
-                 Date='', Time='', HomeFirst=0):
-        self.HomeTeam = HomeTeam
-        self.AwayTeam = AwayTeam
-        self.H_CurrentSP = H_CurrentSP
-        self.A_CurrentSP = A_CurrentSP
-        self.H_BetRating = H_BetRating
-        self.A_BetRating = A_BetRating
-        self.H_PointsAgainst = H_PointsAgainst
-        self.A_PointsAgainst = A_PointsAgainst
-        self.H_PointsFor = H_PointsFor
-        self.A_PointsFor = A_PointsFor
-        self.H_RoadOU = H_RoadOU
-        self.A_RoadOU = A_RoadOU
-        self.H_HomeOU = H_HomeOU
-        self.A_HomeOU = A_HomeOU
-        self.H_Under = H_Under
-        self.A_Under = A_Under
-        self.H_Over = H_Over
-        self.A_Over = A_Over
-        self.H_UnderRecord = H_UnderRecord
-        self.A_UnderRecord = A_UnderRecord
-        self.H_OverRecord = H_OverRecord
-        self.A_OverRecord = A_OverRecord
-        self.H_NetUnits = H_NetUnits
-        self.A_NetUnits = A_NetUnits
-        self.H_Road = H_Road
-        self.A_Road = A_Road
-        self.H_Home = H_Home
-        self.A_Home = A_Home
-        self.H_SeasonWin = H_SeasonWin
-        self.A_SeasonWin = A_SeasonWin
-        self.H_Games = H_Games
-        self.A_Games = A_Games
-        self.H_ATSUnits = H_ATSUnits
-        self.A_ATSUnits = A_ATSUnits
-        self.H_RoadATS = H_RoadATS
-        self.A_RoadATS = A_RoadATS
-        self.H_HomeATS = H_HomeATS
-        self.A_HomeATS = A_HomeATS
-        self.H_ATSWin = H_ATSWin
-        self.A_ATSWin = A_ATSWin
-        self.H_ATSRec = H_ATSRec
-        self.A_ATSRec = A_ATSRec
-        self.H_ProEdgeSP = H_ProEdgeSP
-        self.A_ProEdgeSP = A_ProEdgeSP
-        self.H_TicketsU = H_TicketsU
-        self.A_TicketsU = A_TicketsU
-        self.H_TicketsO = H_TicketsO
-        self.A_TicketsO = A_TicketsO
-        self.H_TicketsML = H_TicketsML
-        self.A_TicketsML = A_TicketsML
-        self.H_TicketsSP = H_TicketsSP
-        self.A_TicketsSP = A_TicketsSP
-        self.H_MoneySP = H_MoneySP
-        self.A_MoneySP = A_MoneySP
-        self.H_TicketSP = H_TicketSP
-        self.A_TicketSP = A_TicketSP
-        self.H_LineMoveOU = H_LineMoveOU
-        self.A_LineMoveOU = A_LineMoveOU
-        self.H_LineMoveML = H_LineMoveML
-        self.A_LineMoveML = A_LineMoveML
-        self.H_LineMoveSP = H_LineMoveSP
-        self.A_LineMoveSP = A_LineMoveSP
-        self.H_OpenOU = H_OpenOU
-        self.A_OpenOU = A_OpenOU
-        self.H_CurrentOU = H_CurrentOU
-        self.A_CurrentOU = A_CurrentOU
-        self.H_OpenML = H_OpenML
-        self.A_OpenML = A_OpenML
-        self.H_CurrentML = H_CurrentML
-        self.A_CurrentML = A_CurrentML
-        self.H_OpenSP = H_OpenSP
-        self.A_OpenSP = A_OpenSP
-        self.Date = Date
-        self.Time = Time
-        self.HomeFirst = HomeFirst
-
-    def __repr__(self):
-        return "<BetQL2ndHalfMoneylineNBA(HomeTeam='{}', AwayTeam='{}', H_CurrentSP='{}', A_CurrentSP={}, H_BetRating={}, " \
-               "A_BetRating={}, H_PointsAgainst={}, A_PointsAgainst={}, H_PointsFor={}, A_PointsFor={}, H_RoadOU={}, " \
-               "A_RoadOU={}, H_HomeOU={}, A_HomeOU={}, H_Under={}, A_Under={}, " \
-               "H_Over={}, A_Over={}, H_UnderRecord={}, " \
-               "A_UnderRecord={}, H_OverRecord={}, A_OverRecord={}, H_NetUnits={}, A_NetUnits={}, H_Road={}, " \
-               "A_Road={}, H_Home={}, A_Home={}, H_SeasonWin={}, A_SeasonWin={}, H_Games={}, A_Games={}, " \
-               "H_ATSUnits={}, A_ATSUnits={}, H_RoadATS={}, A_RoadATS={}, H_HomeATS={}, A_HomeATS={}, " \
-               "H_ATSWin={}, A_ATSWin={}, H_ATSRec={}, A_ATSRec={}, H_ProEdgeSP={}, A_ProEdgeSP={}, " \
-               "H_TicketsU={}, A_TicketsU={}, H_TicketsO={}, A_TicketsO={}, H_TicketsML={}, A_TicketsML={}, " \
-               "H_TicketsSP={}, A_TicketsSP={}, H_MoneySP={}, A_MoneySP={}, H_TicketSP={}, A_TicketSP={}, " \
-               "H_LineMoveOU={}, A_LineMoveOU={}, H_LineMoveML={}, A_LineMoveML={}, H_LineMoveSP={}, " \
-               "A_LineMoveSP={}, H_OpenOU={}, A_OpenOU={}, H_CurrentOU={}, A_CurrentOU={}, H_OpenML={}, " \
-               "A_OpenML={}, H_CurrentML={}, A_CurrentML={}, H_OpenSP={}, A_OpenSP={}, Date={}, Time={}, " \
-               "CreatedDate={}, HomeFirst={})>" \
-            .format(self.HomeTeam, self.AwayTeam, self.H_CurrentSP, self.A_CurrentSP, self.H_BetRating,
-                    self.A_BetRating, self.H_PointsAgainst, self.A_PointsAgainst, self.H_PointsFor, self.A_PointsFor,
-                    self.H_RoadOU, self.A_RoadOU, self.H_HomeOU, self.A_HomeOU, self.H_Under,
-                    self.A_Under, self.H_Over, self.A_Over, self.H_UnderRecord, self.A_UnderRecord,
-                    self.H_OverRecord, self.A_OverRecord, self.H_NetUnits, self.A_NetUnits, self.H_Road,
-                    self.A_Road, self.H_Home, self.A_Home, self.H_SeasonWin, self.A_SeasonWin, self.H_Games,
-                    self.A_Games, self.H_ATSUnits, self.A_ATSUnits, self.H_RoadATS, self.A_RoadATS, self.H_HomeATS,
-                    self.A_HomeATS, self.H_ATSWin, self.H_ATSWin, self.H_ATSRec, self.A_ATSRec, self.H_ProEdgeSP,
-                    self.A_ProEdgeSP, self.H_TicketsU, self.A_TicketsU, self.H_TicketsO, self.A_TicketsO,
-                    self.H_TicketsML, self.A_TicketsML, self.H_TicketsSP, self.A_TicketsSP, self.H_MoneySP,
-                    self.A_MoneySP, self.H_TicketSP, self.A_TicketSP, self.H_LineMoveOU, self.A_LineMoveOU,
-                    self.H_LineMoveML, self.A_LineMoveML, self.H_LineMoveSP, self.A_LineMoveSP, self.H_OpenOU,
-                    self.A_OpenOU, self.H_CurrentOU, self.A_CurrentOU, self.H_OpenML, self.A_OpenML, self.H_CurrentML,
-                    self.A_CurrentML, self.H_OpenSP, self.A_OpenSP, self.Date, self.Time, self.CreatedDate,
-                    self.HomeFirst)
+        return "<BetQL_NBA(SlugID={}, HomeTeamID={}, AwayTeamID={}, EventState={}, StartDate={}, " \
+               "H_current_spread={}, A_current_spread={}, Spread_best_rating={}, H_current_moneyline={}, " \
+               "A_current_moneyline={}, Moneyline_best_rating={}, Current_U={}, Current_O={}, " \
+               "Total_best_rating={}, H_current_1h_spread={}, A_current_1h_spread={}, First_spread_best_rating={}, " \
+               "H_current_1h_moneyline={}, A_current_1h_moneyline={}, First_moneyline_best_rating={}, Current_1h_U={}, " \
+               "Current_1h_O={}, First_total_best_rating={}, " \
+               "H_current_2h_spread={}, A_current_2h_spread={}, H_current_2h_moneyline={}, A_current_2h_moneyline={}, " \
+               "H_points_against={}, A_points_against={}, H_points_for={}, A_points_for={}, " \
+               "H_road_ou={}, A_road_ou={}, H_home_ou={}, " \
+               "A_home_ou={}, H_under={}, A_under={}, H_over={}, A_over={}, H_under_record={}, A_under_record={}, " \
+               "H_over_record={}, A_over_record={}, H_net_units={}, A_net_units={}, H_road={}, " \
+               "A_road={}, H_home={}, A_home={}, " \
+               "H_season_win={}, A_season_win={}, H_games={}, A_games={}, H_ATS_units={}, A_ATS_units={}, " \
+               "H_road_ATS={}, A_road_ATS={}, H_home_ATS={}, A_home_ATS={}, H_ATS_win={}, A_ATS_win={}, " \
+               "H_ATS_rec={}, A_ATS_rec={}, U_of_tickets={}, O_of_tickets={}, H_ml_of_tickets={}, " \
+               "A_ml_of_tickets={}, H_sp_of_tickets={}, A_sp_of_tickets={}, H_open_spread={}, A_open_spread={}, " \
+               "H_open_moneyline={}, " \
+               "A_open_moneyline={}, Open_U={}, Open_O={}, H_open_1h_spread={}, A_open_1h_spread={}, " \
+               "H_open_1h_moneyline={}, A_open_1h_moneyline={}, " \
+               "Open_1h_U={}, Open_1h_O={}, H_open_2h_spread={}, A_open_2h_spread={}, H_open_2h_moneyline={}, " \
+               "A_open_2h_moneyline={}, CreatedDate={})>" \
+            .format(self.SlugID, self.HomeTeamID, self.AwayTeamID, self.EventState, self.StartDate,
+                    self.H_current_spread, self.A_current_spread, self.Spread_best_rating, self.H_current_moneyline,
+                    self.A_current_moneyline, self.Moneyline_best_rating, self.Current_U, self.Current_O,
+                    self.Total_best_rating,
+                    self.H_current_1h_spread, self.A_current_1h_spread, self.First_spread_best_rating,
+                    self.H_current_1h_moneyline,
+                    self.A_current_1h_moneyline, self.First_moneyline_best_rating, self.Current_1h_U, self.Current_1h_O,
+                    self.First_total_best_rating, self.H_current_2h_spread, self.A_current_2h_spread,
+                    self.H_current_2h_moneyline, self.A_current_2h_moneyline, self.H_points_against,
+                    self.A_points_against, self.H_points_for, self.A_points_for,
+                    self.H_road_ou, self.A_road_ou, self.H_home_ou, self.A_home_ou, self.H_under,
+                    self.A_under, self.H_over, self.A_over, self.H_under_record, self.A_under_record,
+                    self.H_over_record, self.A_over_record,
+                    self.H_net_units, self.A_net_units, self.H_road, self.A_road, self.H_home, self.A_home,
+                    self.H_season_win,
+                    self.A_season_win, self.H_games, self.A_games, self.H_ATS_units, self.A_ATS_units, self.H_road_ATS,
+                    self.A_road_ATS,
+                    self.H_home_ATS, self.A_home_ATS, self.H_ATS_win, self.A_ATS_win, self.H_ATS_rec, self.A_ATS_rec,
+                    self.U_of_tickets, self.O_of_tickets, self.H_ml_of_tickets, self.A_ml_of_tickets,
+                    self.H_sp_of_tickets,
+                    self.A_sp_of_tickets, self.H_open_spread, self.A_open_spread, self.H_open_moneyline,
+                    self.A_open_moneyline,
+                    self.Open_U, self.Open_O, self.H_open_1h_spread, self.A_open_1h_spread, self.H_open_1h_moneyline,
+                    self.A_open_1h_moneyline, self.Open_1h_U, self.Open_1h_O, self.H_open_2h_spread,
+                    self.A_open_2h_spread,
+                    self.H_open_2h_moneyline, self.A_open_2h_moneyline, self.CreatedDate)

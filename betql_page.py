@@ -1,12 +1,27 @@
 import requests
 from datetime import datetime, timedelta
 import pytz
+import pandas as pd
+from sqlalchemy import or_
+from database import session
+from database import recreate_team_table
+from database import recreate_betql_table
+from database import close_connection
+from models.betql_model import BetQL_NBA
+from models.betql_model import BetQL_NCAA
+from models.team_models import NCAATeam
+from models.team_models import NBATeam
 from airtable_init import airtable_ncaa_team
 from airtable_init import airtable_nba_team
 from airtable_init import airtable_betql_ncaa
 from airtable_init import airtable_betql_nba
 from airtable_init import ncaa_team_info
 from airtable_init import nba_team_info
+import google_spread_sheet
+from google_spread_sheet import get_work_sheet
+
+wks_ncaa = get_work_sheet('BetQL_NCAA')
+wks_nba = get_work_sheet('BetQL_NBA')
 
 api_url = 'https://api.betql.co/graphql'
 email = 'bonagamble@gmail.com'
@@ -28,6 +43,7 @@ token = login_res.json()['data']['login']['token']
 
 
 def betql_work(is_nba):
+    total_sheet_data = []
     betql_res = requests.post(api_url,
                               json={
                                   "operationName": "eventsQuery",
@@ -61,52 +77,6 @@ def betql_work(is_nba):
     for event in event_list:
         home_team_info = event['homeTeam']
         away_team_info = event['awayTeam']
-        if is_nba:
-            team1_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
-                                home_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
-                                nba_team_info[1] + '}, "\'", " ")="' + \
-                                home_team_info['fullName'].replace("'", " ") + '")'
-            team2_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
-                                away_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
-                                nba_team_info[1] + '}, "\'", " ")="' + \
-                                away_team_info['fullName'].replace("'", " ") + '")'
-            home_team = airtable_nba_team.get_all(formula=team1_formula_str)
-            away_team = airtable_nba_team.get_all(formula=team2_formula_str)
-            if not home_team:
-                home_team = airtable_nba_team.insert(
-                    {nba_team_info[0]: home_team_info['preferredAbbreviation'],
-                     nba_team_info[1]: home_team_info['fullName'], })
-            else:
-                home_team = home_team[0]
-            if not away_team:
-                away_team = airtable_nba_team.insert(
-                    {nba_team_info[0]: away_team_info['preferredAbbreviation'],
-                     nba_team_info[1]: away_team_info['fullName']})
-            else:
-                away_team = away_team[0]
-        else:
-            team1_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
-                                home_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
-                                ncaa_team_info[1] + '}, "\'", " ")="' + \
-                                home_team_info['fullName'].replace("'", " ") + '")'
-            team2_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
-                                away_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
-                                ncaa_team_info[1] + '}, "\'", " ")="' + \
-                                away_team_info['fullName'].replace("'", " ") + '")'
-            home_team = airtable_ncaa_team.get_all(formula=team1_formula_str)
-            away_team = airtable_ncaa_team.get_all(formula=team2_formula_str)
-            if not home_team:
-                home_team = airtable_ncaa_team.insert(
-                    {ncaa_team_info[0]: home_team_info['preferredAbbreviation'],
-                     ncaa_team_info[1]: home_team_info['fullName'], })
-            else:
-                home_team = home_team[0]
-            if not away_team:
-                away_team = airtable_ncaa_team.insert(
-                    {ncaa_team_info[0]: away_team_info['preferredAbbreviation'],
-                     ncaa_team_info[1]: away_team_info['fullName']})
-            else:
-                away_team = away_team[0]
         open_info = [None] * 3
         current_info = [None] * 3
         event_stats = [None] * 3
@@ -134,8 +104,6 @@ def betql_work(is_nba):
         fields = {
             'ID': event['id'],
             'SlugID': event['slugId'],
-            'HomeTeam': [home_team['id']],
-            'AwayTeam': [away_team['id']],
             'EventState': event['eventState'],
             'StartDate': event['startDate'],
             'H_current_spread': current_info[0]['homeSpread'] if
@@ -377,6 +345,7 @@ def betql_work(is_nba):
             'A_open_2h_moneyline': open_info[2]['awayMoney'] if
             open_info[2] is not None and open_info[2]['awayMoney'] is not None else None
         }
+
         if is_nba:
             fields['H_points_against'] = home_team_info['teamStats']['pointsAgainst'] if \
                 home_team_info['teamStats']['pointsAgainst'] is not None else None
@@ -386,21 +355,282 @@ def betql_work(is_nba):
                 home_team_info['teamStats']['pointsFor'] is not None else None
             fields['A_points_for'] = away_team_info['teamStats']['pointsFor'] if \
                 away_team_info['teamStats']['pointsFor'] is not None else None
-            record = airtable_betql_nba.match('ID', event['id'])
-            if record:
-                airtable_betql_nba.replace(record['id'], fields)
+        if action_type <= 1:
+            if is_nba:
+                team1 = session.query(NBATeam).filter(or_(
+                    NBATeam.ShortTeamName == home_team_info['preferredAbbreviation'],
+                    NBATeam.FullTeamName == home_team_info['fullName'].replace("'", " "))).first()
+                team2 = session.query(NBATeam).filter(or_(
+                    NBATeam.ShortTeamName == away_team_info['preferredAbbreviation'],
+                    NBATeam.FullTeamName == away_team_info['fullName'].replace("'", " "))).first()
+                if not team1:
+                    team1 = NBATeam(home_team_info['preferredAbbreviation'], home_team_info['fullName'])
+                    session.add(team1)
+                    session.flush()
+                if not team2:
+                    team2 = NBATeam(away_team_info['preferredAbbreviation'], away_team_info['fullName'])
+                    session.add(team2)
+                    session.flush()
+                db_record = session.query(BetQL_NBA).filter(BetQL_NBA.SlugID == event['slugId']).first()
+                new_betql_ncaa = BetQL_NBA(fields['SlugID'], team1.ID, team2.ID, fields['EventState'],
+                                           fields['StartDate'], fields['H_current_spread'], fields['A_current_spread'],
+                                           fields['Spread_best_rating'], fields['H_current_moneyline'],
+                                           fields['A_current_moneyline'], fields['Moneyline_best_rating'],
+                                           fields['Current_U'], fields['Current_O'], fields['Total_best_rating'],
+                                           fields['H_current_1h_spread'], fields['A_current_1h_spread'],
+                                           fields['1h_spread_best_rating'], fields['H_current_1h_moneyline'],
+                                           fields['A_current_1h_moneyline'], fields['1h_moneyline_best_rating'],
+                                           fields['Current_1h_U'], fields['Current_1h_O'],
+                                           fields['1h_total_best_rating'], fields['H_current_2h_spread'],
+                                           fields['A_current_2h_spread'], fields['H_current_2h_moneyline'],
+                                           fields['A_current_2h_moneyline'], fields['H_points_against'],
+                                           fields['A_points_against'], fields['H_points_for'], fields['A_points_for'],
+                                           fields['H_road_ou'], fields['A_road_ou'],
+                                           fields['H_home_ou'], fields['A_home_ou'], fields['H_under'],
+                                           fields['A_under'], fields['H_over'], fields['A_over'],
+                                           fields['H_under_record'], fields['A_under_record'], fields['H_over_record'],
+                                           fields['A_over_record'], fields['H_net_units'], fields['A_net_units'],
+                                           fields['H_road'], fields['A_road'], fields['H_home'], fields['A_home'],
+                                           fields['H_season_win'], fields['A_season_win'], fields['H_games'],
+                                           fields['A_games'], fields['H_ATS_units'], fields['A_ATS_units'],
+                                           fields['H_road_ATS'], fields['A_road_ATS'], fields['H_home_ATS'],
+                                           fields['A_home_ATS'], fields['H_ATS_win'], fields['A_ATS_win'],
+                                           fields['H_ATS_rec'], fields['A_ATS_rec'], fields['U_of_tickets'],
+                                           fields['O_of_tickets'], fields['H_ml_of_tickets'], fields['A_ml_of_tickets'],
+                                           fields['H_sp_of_tickets'], fields['A_sp_of_tickets'],
+                                           fields['H_open_spread'],
+                                           fields['A_open_spread'], fields['H_open_moneyline'],
+                                           fields['A_open_moneyline'], fields['Open_U'], fields['Open_O'],
+                                           fields['H_open_1h_spread'], fields['A_open_1h_spread'],
+                                           fields['H_open_1h_moneyline'], fields['A_open_1h_moneyline'],
+                                           fields['Open_1h_U'], fields['Open_1h_O'], fields['H_open_2h_spread'],
+                                           fields['A_open_2h_spread'], fields['H_open_2h_moneyline'],
+                                           fields['A_open_2h_moneyline'])
+                if not db_record:
+                    session.add(new_betql_ncaa)
+                    if action_type == 0:
+                        total_sheet_data.append((fields['SlugID'], team1.ShortTeamName, team1.FullTeamName,
+                                                 team2.ShortTeamName, team2.FullTeamName, fields['EventState'],
+                                                 fields['StartDate'], fields['H_current_spread'],
+                                                 fields['A_current_spread'],
+                                                 fields['Spread_best_rating'], fields['H_current_moneyline'],
+                                                 fields['A_current_moneyline'], fields['Moneyline_best_rating'],
+                                                 fields['Current_U'], fields['Current_O'], fields['Total_best_rating'],
+                                                 fields['H_current_1h_spread'], fields['A_current_1h_spread'],
+                                                 fields['1h_spread_best_rating'], fields['H_current_1h_moneyline'],
+                                                 fields['A_current_1h_moneyline'], fields['1h_moneyline_best_rating'],
+                                                 fields['Current_1h_U'], fields['Current_1h_O'],
+                                                 fields['1h_total_best_rating'], fields['H_current_2h_spread'],
+                                                 fields['A_current_2h_spread'], fields['H_current_2h_moneyline'],
+                                                 fields['A_current_2h_moneyline'], fields['H_points_against'],
+                                                 fields['A_points_against'], fields['H_points_for'],
+                                                 fields['A_points_for'], fields['H_road_ou'], fields['A_road_ou'],
+                                                 fields['H_home_ou'], fields['A_home_ou'], fields['H_under'],
+                                                 fields['A_under'], fields['H_over'], fields['A_over'],
+                                                 fields['H_under_record'], fields['A_under_record'],
+                                                 fields['H_over_record'],
+                                                 fields['A_over_record'], fields['H_net_units'], fields['A_net_units'],
+                                                 fields['H_road'], fields['A_road'], fields['H_home'], fields['A_home'],
+                                                 fields['H_season_win'], fields['A_season_win'], fields['H_games'],
+                                                 fields['A_games'], fields['H_ATS_units'], fields['A_ATS_units'],
+                                                 fields['H_road_ATS'], fields['A_road_ATS'], fields['H_home_ATS'],
+                                                 fields['A_home_ATS'], fields['H_ATS_win'], fields['A_ATS_win'],
+                                                 fields['H_ATS_rec'], fields['A_ATS_rec'], fields['U_of_tickets'],
+                                                 fields['O_of_tickets'], fields['H_ml_of_tickets'],
+                                                 fields['A_ml_of_tickets'],
+                                                 fields['H_sp_of_tickets'], fields['A_sp_of_tickets'],
+                                                 fields['H_open_spread'],
+                                                 fields['A_open_spread'], fields['H_open_moneyline'],
+                                                 fields['A_open_moneyline'], fields['Open_U'], fields['Open_O'],
+                                                 fields['H_open_1h_spread'], fields['A_open_1h_spread'],
+                                                 fields['H_open_1h_moneyline'], fields['A_open_1h_moneyline'],
+                                                 fields['Open_1h_U'], fields['Open_1h_O'], fields['H_open_2h_spread'],
+                                                 fields['A_open_2h_spread'], fields['H_open_2h_moneyline'],
+                                                 fields['A_open_2h_moneyline']))
+                else:
+                    new_betql_ncaa.ID = db_record.ID
+                    session.merge(new_betql_ncaa)
             else:
-                airtable_betql_nba.insert(fields)
+                team1 = session.query(NCAATeam).filter(or_(
+                    NCAATeam.ShortTeamName == home_team_info['preferredAbbreviation'],
+                    NCAATeam.FullTeamName == home_team_info['fullName'].replace("'", " "))).first()
+                team2 = session.query(NCAATeam).filter(or_(
+                    NCAATeam.ShortTeamName == away_team_info['preferredAbbreviation'],
+                    NCAATeam.FullTeamName == away_team_info['fullName'].replace("'", " "))).first()
+                if not team1:
+                    team1 = NCAATeam(home_team_info['preferredAbbreviation'], home_team_info['fullName'])
+                    session.add(team1)
+                    session.flush()
+                if not team2:
+                    team2 = NCAATeam(away_team_info['preferredAbbreviation'], away_team_info['fullName'])
+                    session.add(team2)
+                    session.flush()
+                db_record = session.query(BetQL_NCAA).filter(BetQL_NCAA.SlugID == event['slugId']).first()
+                new_betql_nba = BetQL_NCAA(fields['SlugID'], team1.ID, team2.ID, fields['EventState'],
+                                           fields['StartDate'], fields['H_current_spread'], fields['A_current_spread'],
+                                           fields['Spread_best_rating'], fields['H_current_moneyline'],
+                                           fields['A_current_moneyline'], fields['Moneyline_best_rating'],
+                                           fields['Current_U'], fields['Current_O'], fields['Total_best_rating'],
+                                           fields['H_current_1h_spread'], fields['A_current_1h_spread'],
+                                           fields['1h_spread_best_rating'], fields['H_current_1h_moneyline'],
+                                           fields['A_current_1h_moneyline'], fields['1h_moneyline_best_rating'],
+                                           fields['Current_1h_U'], fields['Current_1h_O'],
+                                           fields['1h_total_best_rating'], fields['H_current_2h_spread'],
+                                           fields['A_current_2h_spread'], fields['H_current_2h_moneyline'],
+                                           fields['A_current_2h_moneyline'], fields['H_road_ou'], fields['A_road_ou'],
+                                           fields['H_home_ou'], fields['A_home_ou'], fields['H_under'],
+                                           fields['A_under'], fields['H_over'], fields['A_over'],
+                                           fields['H_under_record'], fields['A_under_record'], fields['H_over_record'],
+                                           fields['A_over_record'], fields['H_net_units'], fields['A_net_units'],
+                                           fields['H_road'], fields['A_road'], fields['H_home'], fields['A_home'],
+                                           fields['H_season_win'], fields['A_season_win'], fields['H_games'],
+                                           fields['A_games'], fields['H_ATS_units'], fields['A_ATS_units'],
+                                           fields['H_road_ATS'], fields['A_road_ATS'], fields['H_home_ATS'],
+                                           fields['A_home_ATS'], fields['H_ATS_win'], fields['A_ATS_win'],
+                                           fields['H_ATS_rec'], fields['A_ATS_rec'], fields['U_of_tickets'],
+                                           fields['O_of_tickets'], fields['H_ml_of_tickets'], fields['A_ml_of_tickets'],
+                                           fields['H_sp_of_tickets'], fields['A_sp_of_tickets'],
+                                           fields['H_open_spread'],
+                                           fields['A_open_spread'], fields['H_open_moneyline'],
+                                           fields['A_open_moneyline'], fields['Open_U'], fields['Open_O'],
+                                           fields['H_open_1h_spread'], fields['A_open_1h_spread'],
+                                           fields['H_open_1h_moneyline'], fields['A_open_1h_moneyline'],
+                                           fields['Open_1h_U'], fields['Open_1h_O'], fields['H_open_2h_spread'],
+                                           fields['A_open_2h_spread'], fields['H_open_2h_moneyline'],
+                                           fields['A_open_2h_moneyline'])
+                if not db_record:
+                    session.add(new_betql_nba)
+                    if action_type == 0:
+                        total_sheet_data.append((fields['SlugID'], team1.ShortTeamName, team1.FullTeamName,
+                                                 team2.ShortTeamName, team2.FullTeamName, fields['EventState'],
+                                                 fields['StartDate'], fields['H_current_spread'],
+                                                 fields['A_current_spread'],
+                                                 fields['Spread_best_rating'], fields['H_current_moneyline'],
+                                                 fields['A_current_moneyline'], fields['Moneyline_best_rating'],
+                                                 fields['Current_U'], fields['Current_O'], fields['Total_best_rating'],
+                                                 fields['H_current_1h_spread'], fields['A_current_1h_spread'],
+                                                 fields['1h_spread_best_rating'], fields['H_current_1h_moneyline'],
+                                                 fields['A_current_1h_moneyline'], fields['1h_moneyline_best_rating'],
+                                                 fields['Current_1h_U'], fields['Current_1h_O'],
+                                                 fields['1h_total_best_rating'], fields['H_current_2h_spread'],
+                                                 fields['A_current_2h_spread'], fields['H_current_2h_moneyline'],
+                                                 fields['A_current_2h_moneyline'], fields['H_road_ou'],
+                                                 fields['A_road_ou'],
+                                                 fields['H_home_ou'], fields['A_home_ou'], fields['H_under'],
+                                                 fields['A_under'], fields['H_over'], fields['A_over'],
+                                                 fields['H_under_record'], fields['A_under_record'],
+                                                 fields['H_over_record'],
+                                                 fields['A_over_record'], fields['H_net_units'], fields['A_net_units'],
+                                                 fields['H_road'], fields['A_road'], fields['H_home'], fields['A_home'],
+                                                 fields['H_season_win'], fields['A_season_win'], fields['H_games'],
+                                                 fields['A_games'], fields['H_ATS_units'], fields['A_ATS_units'],
+                                                 fields['H_road_ATS'], fields['A_road_ATS'], fields['H_home_ATS'],
+                                                 fields['A_home_ATS'], fields['H_ATS_win'], fields['A_ATS_win'],
+                                                 fields['H_ATS_rec'], fields['A_ATS_rec'], fields['U_of_tickets'],
+                                                 fields['O_of_tickets'], fields['H_ml_of_tickets'],
+                                                 fields['A_ml_of_tickets'],
+                                                 fields['H_sp_of_tickets'], fields['A_sp_of_tickets'],
+                                                 fields['H_open_spread'],
+                                                 fields['A_open_spread'], fields['H_open_moneyline'],
+                                                 fields['A_open_moneyline'], fields['Open_U'], fields['Open_O'],
+                                                 fields['H_open_1h_spread'], fields['A_open_1h_spread'],
+                                                 fields['H_open_1h_moneyline'], fields['A_open_1h_moneyline'],
+                                                 fields['Open_1h_U'], fields['Open_1h_O'], fields['H_open_2h_spread'],
+                                                 fields['A_open_2h_spread'], fields['H_open_2h_moneyline'],
+                                                 fields['A_open_2h_moneyline']))
+                else:
+                    new_betql_nba.ID = db_record.ID
+                    session.merge(new_betql_nba)
+
+        if action_type == 0 or action_type == 2:
+            if is_nba:
+                team1_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
+                                    home_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                    nba_team_info[1] + '}, "\'", " ")="' + \
+                                    home_team_info['fullName'].replace("'", " ") + '")'
+                team2_formula_str = 'OR(SUBSTITUTE({' + nba_team_info[0] + '}, "\'", " ")="' + \
+                                    away_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                    nba_team_info[1] + '}, "\'", " ")="' + \
+                                    away_team_info['fullName'].replace("'", " ") + '")'
+                home_team = airtable_nba_team.get_all(formula=team1_formula_str)
+                away_team = airtable_nba_team.get_all(formula=team2_formula_str)
+                if not home_team:
+                    home_team = airtable_nba_team.insert(
+                        {nba_team_info[0]: home_team_info['preferredAbbreviation'],
+                         nba_team_info[1]: home_team_info['fullName'], })
+                else:
+                    home_team = home_team[0]
+                if not away_team:
+                    away_team = airtable_nba_team.insert(
+                        {nba_team_info[0]: away_team_info['preferredAbbreviation'],
+                         nba_team_info[1]: away_team_info['fullName']})
+                else:
+                    away_team = away_team[0]
+                fields['HomeTeam'] = [home_team['id']]
+                fields['AwayTeam'] = [away_team['id']]
+
+                record = airtable_betql_nba.match('ID', event['id'])
+                if record:
+                    airtable_betql_nba.replace(record['id'], fields)
+                else:
+                    airtable_betql_nba.insert(fields)
+            else:
+                team1_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
+                                    home_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                    ncaa_team_info[1] + '}, "\'", " ")="' + \
+                                    home_team_info['fullName'].replace("'", " ") + '")'
+                team2_formula_str = 'OR(SUBSTITUTE({' + ncaa_team_info[0] + '}, "\'", " ")="' + \
+                                    away_team_info['fullName'].replace("'", " ") + '", SUBSTITUTE({' + \
+                                    ncaa_team_info[1] + '}, "\'", " ")="' + \
+                                    away_team_info['fullName'].replace("'", " ") + '")'
+                home_team = airtable_ncaa_team.get_all(formula=team1_formula_str)
+                away_team = airtable_ncaa_team.get_all(formula=team2_formula_str)
+                if not home_team:
+                    home_team = airtable_ncaa_team.insert(
+                        {ncaa_team_info[0]: home_team_info['preferredAbbreviation'],
+                         ncaa_team_info[1]: home_team_info['fullName'], })
+                else:
+                    home_team = home_team[0]
+                if not away_team:
+                    away_team = airtable_ncaa_team.insert(
+                        {ncaa_team_info[0]: away_team_info['preferredAbbreviation'],
+                         ncaa_team_info[1]: away_team_info['fullName']})
+                else:
+                    away_team = away_team[0]
+                fields['HomeTeam'] = [home_team['id']]
+                fields['AwayTeam'] = [away_team['id']]
+
+                record = airtable_betql_ncaa.match('ID', event['id'])
+                if record:
+                    airtable_betql_ncaa.replace(record['id'], fields)
+                else:
+                    airtable_betql_ncaa.insert(fields)
+    if action_type == 0 and len(total_sheet_data) > 0:  # store into gsheet
+        if is_nba:
+            df = pd.DataFrame(total_sheet_data, columns=BetQL_NBA.gsheet_table_columns)
+            original_df = wks_nba.get_as_df()
+            original_df = original_df.append(df)
+            wks_nba.set_dataframe(original_df, (1, 1))
         else:
-            record = airtable_betql_ncaa.match('ID', event['id'])
-            if record:
-                airtable_betql_ncaa.replace(record['id'], fields)
-            else:
-                airtable_betql_ncaa.insert(fields)
+            df = pd.DataFrame(total_sheet_data, columns=BetQL_NCAA.gsheet_table_columns)
+            original_df = wks_ncaa.get_as_df()
+            original_df = original_df.append(df)
+            wks_ncaa.set_dataframe(original_df, (1, 1))
 
 
+action_type = 0
 print(datetime.now().isoformat(), "Betql-NCAA work")
-betql_work(0)
-print("Betql-NBA work")
-betql_work(1)
-print("Finished betql work")
+if action_type <= 1:
+    recreate_team_table()
+    recreate_betql_table()
+    betql_work(0)
+    print("Betql-NBA work")
+    betql_work(1)
+    print("Finished betql work")
+    session.commit()
+    close_connection()
+else:
+    betql_work(0)
+    print("Betql-NBA work")
+    betql_work(1)
+    print("Finished betql work")

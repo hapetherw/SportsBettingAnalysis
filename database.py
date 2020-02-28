@@ -13,22 +13,8 @@ from models.curated_picks_model import PicksWiseNCAA
 from models.curated_picks_model import PicksWiseNBA
 from models.vegas_insider_model import VegasInsider
 from models.espn_model import ESPNNCAAB
-from models.betql_model import BetQLSpreadNCAAB
-from models.betql_model import BetQLMoneylineNCAAB
-from models.betql_model import BetQLTotalNCAAB
-from models.betql_model import BetQL1stHalfSpreadNCAAB
-from models.betql_model import BetQL1stHalfMoneylineNCAAB
-from models.betql_model import BetQL1stHalfTotalNCAAB
-from models.betql_model import BetQL2ndHalfSpreadNCAAB
-from models.betql_model import BetQL2ndHalfMoneylineNCAAB
-from models.betql_model import BetQLSpreadNBA
-from models.betql_model import BetQLMoneylineNBA
-from models.betql_model import BetQLTotalNBA
-from models.betql_model import BetQL1stHalfSpreadNBA
-from models.betql_model import BetQL1stHalfMoneylineNBA
-from models.betql_model import BetQL1stHalfTotalNBA
-from models.betql_model import BetQL2ndHalfSpreadNBA
-from models.betql_model import BetQL2ndHalfMoneylineNBA
+from models.betql_model import BetQL_NBA
+from models.betql_model import BetQL_NCAA
 from models.sportsinsights_model import SportsInsightsBETSIGNALS
 from models.sportsinsights_model import SportsInsightsBESTBETS
 import config
@@ -97,22 +83,8 @@ def recreate_vegas_insider_table(is_reset=0):
 
 def recreate_betql_table(is_reset=0):
     if is_reset:
-        Base.metadata.drop_all(engine, tables=[BetQLSpreadNCAAB.__table__, BetQLMoneylineNCAAB.__table__,
-                                               BetQLTotalNCAAB.__table__, BetQL1stHalfSpreadNCAAB.__table__,
-                                               BetQL1stHalfMoneylineNCAAB.__table__, BetQL1stHalfTotalNCAAB.__table__,
-                                               BetQL2ndHalfSpreadNCAAB.__table__, BetQL2ndHalfMoneylineNCAAB.__table__,
-                                               BetQLSpreadNBA.__table__, BetQLMoneylineNBA.__table__,
-                                               BetQLTotalNBA.__table__, BetQL1stHalfSpreadNBA.__table__,
-                                               BetQL1stHalfMoneylineNBA.__table__, BetQL1stHalfTotalNBA.__table__,
-                                               BetQL2ndHalfSpreadNBA.__table__, BetQL2ndHalfMoneylineNBA.__table__])
-    Base.metadata.create_all(engine, tables=[BetQLSpreadNCAAB.__table__, BetQLMoneylineNCAAB.__table__,
-                                             BetQLTotalNCAAB.__table__, BetQL1stHalfSpreadNCAAB.__table__,
-                                             BetQL1stHalfMoneylineNCAAB.__table__, BetQL1stHalfTotalNCAAB.__table__,
-                                             BetQL2ndHalfSpreadNCAAB.__table__, BetQL2ndHalfMoneylineNCAAB.__table__,
-                                             BetQLSpreadNBA.__table__, BetQLMoneylineNBA.__table__,
-                                             BetQLTotalNBA.__table__, BetQL1stHalfSpreadNBA.__table__,
-                                             BetQL1stHalfMoneylineNBA.__table__, BetQL1stHalfTotalNBA.__table__,
-                                             BetQL2ndHalfSpreadNBA.__table__, BetQL2ndHalfMoneylineNBA.__table__])
+        Base.metadata.drop_all(engine, tables=[BetQL_NBA.__table__, BetQL_NCAA.__table__])
+    Base.metadata.create_all(engine, tables=[BetQL_NBA.__table__, BetQL_NCAA.__table__])
     print("Created BetQL Tables")
 
 

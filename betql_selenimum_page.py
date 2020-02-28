@@ -8,7 +8,7 @@ import requests
 from datetime import date
 import time
 from enum import Enum, auto
-from models.betql_model import BetQLSpreadNCAAB
+from models.betql_model import BetQL_NCAA
 from models.betql_model import BetQLMoneylineNCAAB
 from models.betql_model import BetQLTotalNCAAB
 from models.betql_model import BetQL1stHalfSpreadNCAAB
@@ -16,7 +16,7 @@ from models.betql_model import BetQL1stHalfMoneylineNCAAB
 from models.betql_model import BetQL1stHalfTotalNCAAB
 from models.betql_model import BetQL2ndHalfSpreadNCAAB
 from models.betql_model import BetQL2ndHalfMoneylineNCAAB
-from models.betql_model import BetQLSpreadNBA
+from models.betql_model import BetQL_NBA
 from models.betql_model import BetQLMoneylineNBA
 from models.betql_model import BetQLTotalNBA
 from models.betql_model import BetQL1stHalfSpreadNBA
@@ -324,7 +324,7 @@ def add_betql_data(tab_type, is_ncaab):
     a_list = game_table_column.find_elements_by_xpath("//a[@class='games-table-column__team-link']")
     for col_a in a_list:
         if tab_type == TabType.NCAAB_Spread:
-            new_betql = BetQLSpreadNCAAB()
+            new_betql = BetQL_NCAA()
         elif tab_type == TabType.NCAAB_Moneyline:
             new_betql = BetQLMoneylineNCAAB()
         elif tab_type == TabType.NCAAB_Total:
@@ -340,7 +340,7 @@ def add_betql_data(tab_type, is_ncaab):
         elif tab_type == TabType.NCAAB_SecondHalfMoneyline:
             new_betql = BetQL2ndHalfMoneylineNCAAB()
         elif tab_type == TabType.NBA_Spread:
-            new_betql = BetQLSpreadNBA()
+            new_betql = BetQL_NBA()
         elif tab_type == TabType.NBA_Moneyline:
             new_betql = BetQLMoneylineNBA()
         elif tab_type == TabType.NBA_Total:
