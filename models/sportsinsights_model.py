@@ -6,6 +6,8 @@ from models.model import Base
 
 class SportsInsightsBETSIGNALS(Base):
     __tablename__ = 'SportsInsightsBETSIGNALS'
+    gsheet_table_columns = ['TriggerTime', 'GameTime', 'Signal', 'PlayOn', 'BetType', 'TriggerBook',
+                            'TriggerUnits', 'Score', 'Result']
     ID = Column(Integer, primary_key=True, autoincrement=True)
     TriggerTime = Column(String, nullable=True)
     GameTime = Column(String, nullable=True)

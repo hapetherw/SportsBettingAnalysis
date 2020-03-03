@@ -633,4 +633,4 @@ else:
     betql_work(0)
     print("Betql-NBA work")
     betql_work(1)
-    print("Finished betql work")
+print("Finished betql work")

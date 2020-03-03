@@ -13,6 +13,8 @@ airtable_espn_ncaa = Airtable(AIRTABLE_BASE_KEY, 'Espn_NCAA', api_key=AIRTABLE_A
 airtable_vegasinsider_ncaa = Airtable(AIRTABLE_BASE_KEY, 'VegasInsider_NCAA', api_key=AIRTABLE_API_KEY)
 airtable_betql_ncaa = Airtable(AIRTABLE_BASE_KEY, 'BetQL_NCAA', api_key=AIRTABLE_API_KEY)
 airtable_betql_nba = Airtable(AIRTABLE_BASE_KEY, 'BetQL_NBA', api_key=AIRTABLE_API_KEY)
+airtable_sportsinsights_betsignals = Airtable(AIRTABLE_BASE_KEY, 'SportsInsights Bet-Singals', api_key=AIRTABLE_API_KEY)
+airtable_sportsinsights_bestbets = Airtable(AIRTABLE_BASE_KEY, 'SportsInsights BestBets', api_key=AIRTABLE_API_KEY)
 airtable_season = Airtable(AIRTABLE_BASE_KEY, 'Season', api_key=AIRTABLE_API_KEY)
 airtable_ncaa_team = Airtable(AIRTABLE_BASE_KEY, 'NCAA Teams', api_key=AIRTABLE_API_KEY)
 airtable_nba_team = Airtable(AIRTABLE_BASE_KEY, 'NBA Teams', api_key=AIRTABLE_API_KEY)
